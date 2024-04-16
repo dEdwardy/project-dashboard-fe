@@ -7,7 +7,8 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    CustomUploader: typeof import('./src/components/CustomUploader.vue')['default']
+    CustomUploader: typeof import('./src/components/CustomUploader/index.vue')['default']
+    DynamicForm: typeof import('./src/components/DynamicForm/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     VirtualList: typeof import('./src/components/VirtualList.vue')['default']

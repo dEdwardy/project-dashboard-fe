@@ -9,7 +9,8 @@ import UnoCSS from 'unocss/vite'
 import VueMacros from 'unplugin-vue-macros/vite'
 import VueRouter from 'unplugin-vue-router/vite'
 import { VueRouterAutoImports } from 'unplugin-vue-router'
-import { vitePluginForArco } from '@arco-plugins/vite-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import { ArcoResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
   resolve: {
@@ -36,6 +37,7 @@ export default defineConfig({
 
     // https://github.com/antfu/unplugin-auto-import
     AutoImport({
+      resolvers: [ArcoResolver()],
       imports: [
         'vue',
         '@vueuse/core',
@@ -55,14 +57,15 @@ export default defineConfig({
     // https://github.com/antfu/vite-plugin-components
     Components({
       dts: true,
+      resolvers: [
+        ArcoResolver({ sideEffect: true }),
+      ],
     }),
 
     // https://github.com/antfu/unocss
     // see uno.config.ts for config
     UnoCSS(),
-    vitePluginForArco({
-      style:'css'
-    })
+    vueJsx(),
   ],
 
   // https://github.com/vitest-dev/vitest

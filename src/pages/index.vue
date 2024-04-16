@@ -2,7 +2,6 @@
 defineOptions({
   name: 'IndexPage',
 })
-
 </script>
 
 <template>
