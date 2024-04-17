@@ -7,11 +7,19 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AButton: typeof import('@arco-design/web-vue')['Button']
+    AModal: typeof import('@arco-design/web-vue')['Modal']
+    AProgress: typeof import('@arco-design/web-vue')['Progress']
+    ATabPane: typeof import('@arco-design/web-vue')['TabPane']
+    ATabs: typeof import('@arco-design/web-vue')['Tabs']
     CustomUploader: typeof import('./src/components/CustomUploader/index.vue')['default']
     DynamicForm: typeof import('./src/components/DynamicForm/index.vue')['default']
+    LazyLoad: typeof import('./src/components/LazyLoad/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    VirtualList: typeof import('./src/components/VirtualList.vue')['default']
+    Test: typeof import('./src/components/VirtualList/Test.vue')['default']
+    VirtualItem: typeof import('./src/components/VirtualList/VirtualItem.vue')['default']
+    VirtualList: typeof import('./src/components/VirtualList/index.vue')['default']
     WaterMark: typeof import('./src/components/WaterMark.vue')['default']
   }
 }

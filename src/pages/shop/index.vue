@@ -1,6 +1,7 @@
-<script setup lang="tsx">
+<script setup lang="ts">
 import DynamicForm from '~/components/DynamicForm/index.vue'
 import type { DynamicFormProps } from '~/components/DynamicForm/types'
+import VirtualList from '~/components/VirtualList/index.vue'
 
 defineOptions({
   name: 'ShopPage',
@@ -64,29 +65,54 @@ function handleSubmit() {
       console.error(err)
   })
 }
+const list: Array<{ id: number, content: string }> = Array.from({ length: 50 }).fill(undefined).map((_, index) => {
+  const height = Math.random() * 40 + 20
+  const randomContent = 'xxx \n xx'.repeat(Math.ceil(Math.random() * 5))
+  const content = `${index + 1} :${randomContent}xxx`
+  return { content, style: { height: `${height}px`, lineHeight: `${height}px` }, id: index }
+})
 </script>
 
 <template>
-  <div class="mx-auto w-960px">
+  <div class="mx-auto min-w-160">
     <div>shop</div>
-    <div>1.DynamicForm </div>
-    <div>2.Virtual List </div>
+    <div>1.Virtual List </div>
+    <div>2.DynamicForm </div>
     <div>3.首屏优化 </div>
     <div>
-      <div>
-        <DynamicForm ref="formRef" v-model:model="props.model" :schema="props.schema" />
-        <div>
-          <button @click="handleSubmit">
-            提交
-          </button>
-          <button @click="handleReset">
-            Reset
-          </button>
-          <button @click="handleClearValidate">
-            清除验证
-          </button>
-        </div>
+      <div style="height:500px">
+      <VirtualList :data-source="list" :estimated-height="20" :max-count="20">
+            <template #item="{ item }">
+              <div>
+                {{ item.id }} - {{ item.content }}
+              </div>
+            </template>
+          </VirtualList>
       </div>
+      <a-tabs lazy-load>
+        <a-tab-pane key="1" title="1.VirtualList">
+          v
+        </a-tab-pane>
+        <a-tab-pane key="2" title="2.DynamicForm">
+          <div>
+            <DynamicForm ref="formRef" v-model:model="props.model" :schema="props.schema" />
+            <div>
+              <button @click="handleSubmit">
+                提交
+              </button>
+              <button @click="handleReset">
+                Reset
+              </button>
+              <button @click="handleClearValidate">
+                清除验证
+              </button>
+            </div>
+          </div>
+        </a-tab-pane>
+        <a-tab-pane key="3" title="3.首屏优化">
+          首屏优化
+        </a-tab-pane>
+      </a-tabs>
     </div>
   </div>
 </template>
