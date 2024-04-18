@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@8.15.4",
   "scripts": {
-    "build": "vite build && node --max_old_space_size=4096",
+    "build": "vite build",
     "dev": "vite",
     "lint": "eslint . --fix",
     "typecheck": "vue-tsc --noEmit",
