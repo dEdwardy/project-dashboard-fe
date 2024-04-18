@@ -3,9 +3,9 @@ import DynamicForm from '~/components/DynamicForm/index.vue'
 import type { DynamicFormProps } from '~/components/DynamicForm/types'
 import VirtualList from '~/components/VirtualList/index.vue'
 
-defineOptions({
-  name: 'ShopPage',
-})
+// defineOptions({
+//   name: 'ShopPage',
+// })
 const formRef = ref<InstanceType<typeof DynamicForm>>()
 // no type
 const props: DynamicFormProps = {
@@ -56,7 +56,7 @@ const props: DynamicFormProps = {
 }
 const handleReset = (): void => formRef.value!.form!.resetFields()
 const handleClearValidate = (): void => formRef.value!.form?.clearValidate()
-function handleSubmit() {
+function handleSubmit () {
   return formRef.value!.form!.validate().then((err) => {
     if (!err)
       console.log(props.model)
@@ -65,9 +65,9 @@ function handleSubmit() {
       console.error(err)
   })
 }
-const list: Array<{ id: number, content: string }> = Array.from({ length: 50 }).fill(undefined).map((_, index) => {
+const list: Array<{ id: number, content: string }> = Array.from({ length: 100 }).fill(undefined).map((_, index) => {
   const height = Math.random() * 40 + 20
-  const randomContent = 'xxx \n xx'.repeat(Math.ceil(Math.random() * 5))
+  const randomContent = 'xxx <br> xx'.repeat(Math.ceil(Math.random() * 5))
   const content = `${index + 1} :${randomContent}xxx`
   return { content, style: { height: `${height}px`, lineHeight: `${height}px` }, id: index }
 })
@@ -76,24 +76,12 @@ const list: Array<{ id: number, content: string }> = Array.from({ length: 50 }).
 <template>
   <div class="mx-auto min-w-160">
     <div>shop</div>
-    <div>1.Virtual List </div>
-    <div>2.DynamicForm </div>
+    <div>1.DynamicForm </div>
+    <div>2.Virtual List </div>
     <div>3.首屏优化 </div>
     <div>
-      <div style="height:500px">
-      <VirtualList :data-source="list" :estimated-height="20" :max-count="20">
-            <template #item="{ item }">
-              <div>
-                {{ item.id }} - {{ item.content }}
-              </div>
-            </template>
-          </VirtualList>
-      </div>
       <a-tabs lazy-load>
-        <a-tab-pane key="1" title="1.VirtualList">
-          v
-        </a-tab-pane>
-        <a-tab-pane key="2" title="2.DynamicForm">
+        <a-tab-pane key="1" title="1.DynamicForm">
           <div>
             <DynamicForm ref="formRef" v-model:model="props.model" :schema="props.schema" />
             <div>
@@ -107,6 +95,18 @@ const list: Array<{ id: number, content: string }> = Array.from({ length: 50 }).
                 清除验证
               </button>
             </div>
+          </div>
+        </a-tab-pane>
+        <a-tab-pane key="2" title="2.VirtualList">
+          <div style="height:500px">
+            <VirtualList :data-source="list" :estimated-height="20" :max-count="20">
+              <template #item="{ item }">
+                <div>
+                  <!-- {{ item.id }} - {{ item.content }} -->
+                  <div v-html="item.content"></div>
+                </div>
+              </template>
+            </VirtualList>
           </div>
         </a-tab-pane>
         <a-tab-pane key="3" title="3.首屏优化">

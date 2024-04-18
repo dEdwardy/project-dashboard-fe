@@ -19,19 +19,20 @@ export default defineConfig({
     },
   },
   plugins: [
-    VueMacros({
-      defineOptions: false,
-      defineModels: false,
-      plugins: {
-        vue: Vue({
-          script: {
-            propsDestructure: true,
-            defineModel: true,
-          },
-        }),
-      },
-    }),
-
+    // VueMacros({
+    //   defineOptions: false,
+    //   defineModels: false,
+    //   plugins: {
+    //     vue: Vue({
+    //       script: {
+    //         propsDestructure: true,
+    //         defineModel: true,
+    //       },
+    //     }),
+    //   },
+    // }),
+    Vue(),
+    vueJsx(),
     // https://github.com/posva/unplugin-vue-router
     VueRouter(),
 
@@ -65,7 +66,6 @@ export default defineConfig({
     // https://github.com/antfu/unocss
     // see uno.config.ts for config
     UnoCSS(),
-    vueJsx(),
   ],
 
   // https://github.com/vitest-dev/vitest

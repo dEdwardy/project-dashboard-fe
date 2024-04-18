@@ -5,9 +5,9 @@ import type { IFormItem, IFormProps } from './types'
 import DefaultLayout from './DefaultLayout'
 import { ComponentMaps } from './ComponentMaps'
 
-defineOptions({
-  name: 'DynamicForm',
-})
+// defineOptions({
+//   name: 'DynamicForm',
+// })
 const props = defineProps<IFormProps>()
 const emits = defineEmits(['update:model', 'submit'])
 const slots = useSlots()

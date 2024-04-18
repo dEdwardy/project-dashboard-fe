@@ -1,7 +1,7 @@
 <script setup>
-defineOptions({
-  name: 'OkrPage',
-})
+// defineOptions({
+//   name: 'OkrPage',
+// })
 </script>
 
 <template>
