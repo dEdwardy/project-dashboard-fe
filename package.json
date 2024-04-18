@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@8.15.4",
   "scripts": {
-    "build": "vite build && node --max_old_space_size=8192",
+    "build": "vite build && node --max_old_space_size=4096",
     "dev": "vite",
     "lint": "eslint . --fix",
     "typecheck": "vue-tsc --noEmit",
@@ -17,7 +17,7 @@
     "@arco-design/web-vue": "^2.55.1",
     "@types/bluebird": "^3.5.42",
     "@vueuse/core": "^10.9.0",
-    "axios": "^1.6.8",
+    "axios": "1.6.8",
     "bluebird": "^3.7.2",
     "element-plus": "^2.7.0",
     "hash-wasm": "^4.11.0",
