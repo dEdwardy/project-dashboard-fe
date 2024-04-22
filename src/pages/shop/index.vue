@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DynamicForm from '~/components/DynamicForm/index.vue'
 import type { DynamicFormProps } from '~/components/DynamicForm/types'
-import VirtualList from '~/components/VirtualList/index.vue'
+import VirtualList from '~/components/VirtualList/VirtualList.vue'
 
 // defineOptions({
 //   name: 'ShopPage',
@@ -80,7 +80,7 @@ const list: Array<{ id: number, content: string }> = Array.from({ length: 100 })
     <div>2.Virtual List </div>
     <div>3.首屏优化 </div>
     <div>
-      <a-tabs lazy-load>
+      <a-tabs>
         <a-tab-pane key="1" title="1.DynamicForm">
           <div>
             <DynamicForm ref="formRef" v-model:model="props.model" :schema="props.schema" />
@@ -98,13 +98,10 @@ const list: Array<{ id: number, content: string }> = Array.from({ length: 100 })
           </div>
         </a-tab-pane>
         <a-tab-pane key="2" title="2.VirtualList">
-          <div style="height:500px">
-            <VirtualList :data-source="list" :estimated-height="20" :max-count="20">
+          <div style="height:200px">
+            <VirtualList :data-source="list" :estimated-height="20">
               <template #item="{ item }">
-                <div>
-                  <!-- {{ item.id }} - {{ item.content }} -->
-                  <div v-html="item.content"></div>
-                </div>
+                <div v-html="item.content"></div>
               </template>
             </VirtualList>
           </div>

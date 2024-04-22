@@ -24,7 +24,10 @@
               <p>异步流程控制 并发上传切片 并控制并发数量6（p-limit/promise）</p>
             </div>
           </div>
-          <CustomUploader />
+          http
+          <CustomUploader  :use-websocket="false"/>
+          websocket
+          <CustomUploader  :use-websocket="true"/>
         </div>
       </a-tab-pane>
       <a-tab-pane key="2" title="2.RBAC权限设计">

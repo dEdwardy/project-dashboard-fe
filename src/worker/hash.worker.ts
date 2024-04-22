@@ -1,25 +1,58 @@
 import { md5 } from 'hash-wasm'
+import type { Socket } from 'socket.io-client'
 import useFileHash from '~/composables/file-hash'
-import useLocalForage from '~/composables/localforage'
+// import useLocalForage from '~/composables/localforage'
 import { DEFAULT_CHUNK_SIZE, readFileChunk } from '~/utils'
+import type { FileChunk } from '~/components/CustomUploader/types'
 
+let socket: Socket
 globalThis.onmessage = async (e) => {
+  console.time('upload')
   const file = e.data.file as unknown as File
   const isChunk = e.data.isChunk as unknown as boolean
-  const { hash, calculateHash, percent } = useFileHash(file)
+  const { calculateHash } = useFileHash(file)
   if (isChunk || file.size < DEFAULT_CHUNK_SIZE) {
     // 切片md5最直接计算
     const buffer = await readFileChunk(file)
     const hash = await md5(new Uint8Array(buffer))
-    globalThis.postMessage({ hash, isChunk, percent, type: 'hash' })
+    globalThis.postMessage({ hash, isChunk, type: 'hash' })
   }
   else {
-    const { setItem } = useLocalForage('cachedHashes')
+    // const { setItem } = useLocalForage('cachedHashes')
     // 非切片md5 增量计算
-    await calculateHash((hash, { current, percent, file }) => {
-      globalThis.postMessage({ type: 'chunk', percent, file, index: current, hash })
-      setItem(hash, current)
+    const total = (Math.ceil(file.size / DEFAULT_CHUNK_SIZE))
+    const toUploadSlice: Omit<FileChunk, 'binary'>[] = []
+    const hash = await calculateHash((hash, { current, file }) => {
+      globalThis.postMessage({ type: 'chunk', file, index: current, hash })
+      toUploadSlice.push({ hash, index: current, file })
+      // setItem(hash, current)
     })
-    globalThis.postMessage({ type: 'hash', hash: hash.value, isChunk, percent })
+    socket = await (await import('~/utils/socket')).socket
+    toUploadSlice.forEach(chunkFileCallbackV2)
+    // chunkFileCallbackV2({ hash,index:current,file })
+    function chunkFileCallbackV2(chunk: Omit<FileChunk, 'binary'>) {
+      const data = {
+        hash,
+        name: file.name,
+        chunkHash: chunk.hash,
+        index: `${chunk.index}`,
+        file: chunk.file,
+        total,
+      }
+      console.time('slice upload')
+      socket.compress(true).emit('chunk', data, ({ current, total }: { current: number, total: number }) => {
+        if (current === total - 1) {
+          console.time('merge slice')
+          console.timeEnd('slice upload')
+        }
+        if (current === total) {
+          console.timeEnd('merge slice')
+          console.timeEnd('upload')
+        }
+        globalThis.postMessage({ type: 'progress', percent: current / total })
+      })
+    }
+
+    globalThis.postMessage({ type: 'hash', hash, isChunk })
   }
 }

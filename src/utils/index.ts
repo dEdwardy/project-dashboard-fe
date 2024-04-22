@@ -2,7 +2,7 @@
 import { md5 } from 'hash-wasm'
 import HashWorker from '~/worker/hash.worker?worker'
 
-export const DEFAULT_CHUNK_SIZE = 2 * 1024 * 1024
+export const DEFAULT_CHUNK_SIZE = 1 * 1024 * 1024
 export type Fn<T> = (...args: any) => T
 export async function promiseAllLimit(arr: any[], fn: (arg: any) => Promise<any>, limit: number) {
   const result = []
