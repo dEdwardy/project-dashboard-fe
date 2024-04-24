@@ -10,10 +10,11 @@ export interface IEstimatedListProps<T> {
   loading?: boolean
   maxCount?: number
 }
-interface DefaultSlotProps { item: any }
+interface DefaultSlotProps {
+  item: any
+}
 export interface ISlot {
   default: (props: DefaultSlotProps) => any
-
 }
 export interface IPostions {
   index: number
@@ -21,6 +22,7 @@ export interface IPostions {
   bottom: number
   height: number
   dHeight: number
+  over?: boolean
 }
 export interface IPosInfo {
   index: number

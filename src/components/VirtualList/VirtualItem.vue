@@ -6,6 +6,13 @@ const scrollTop = inject<Ref<number>>('scrollTop')
 
 <template>
   <!-- <div :style="{ height: `${itemHeight}px`, lineHeight: `${itemHeight}px`, transform: `translateY(${scrollTop ?? 0}px)` }"> -->
-  <slot :item="props.item" :style="{ height: `${itemHeight}px`, lineHeight: `${itemHeight}px`, transform: `translateY(${scrollTop ?? 0}px)` }" />
+  <slot
+    :item="props.item"
+    :style="{
+      height: `${itemHeight}px`,
+      lineHeight: `${itemHeight}px`,
+      transform: `translateY(${scrollTop ?? 0}px)`,
+    }"
+  />
   <!-- </div> -->
 </template>

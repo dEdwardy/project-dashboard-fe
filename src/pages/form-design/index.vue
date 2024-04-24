@@ -1,3 +1,3 @@
 <template>
-  <div>Not Found</div>
+  <FormDesign />
 </template>

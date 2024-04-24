@@ -9,7 +9,7 @@ export default function useFileHash(file: File) {
   let percent = 0
   const MAX_CHUNK_SIZE = DEFAULT_CHUNK_SIZE
   let currentChunk = 0
-  const total = (Math.ceil(file.size / MAX_CHUNK_SIZE))
+  const total = Math.ceil(file.size / MAX_CHUNK_SIZE)
 
   const calculateHash = (callback: Fn<void> | undefined = undefined) => {
     return new Promise(async (resolve, reject) => {
@@ -25,12 +25,21 @@ export default function useFileHash(file: File) {
         percent = 1 / total + percent
         const sliceHash = await md5(uint8Array)
         const start = currentChunk * MAX_CHUNK_SIZE
-        const end = ((start + MAX_CHUNK_SIZE) >= file.size) ? file.size : start + MAX_CHUNK_SIZE
+        const end
+          = start + MAX_CHUNK_SIZE >= file.size
+            ? file.size
+            : start + MAX_CHUNK_SIZE
         const slice = file.slice(start, end)
         spark.update(uint8Array)
         if (currentChunk < total) {
-          if (callback)
-            callback(sliceHash, { current: currentChunk, percent, file: slice, uint8Array })
+          if (callback) {
+            callback(sliceHash, {
+              current: currentChunk,
+              percent,
+              file: slice,
+              uint8Array,
+            })
+          }
 
           currentChunk++
           loadNextChunk()
@@ -51,11 +60,22 @@ export default function useFileHash(file: File) {
 
       function loadNextChunk() {
         const start = currentChunk * MAX_CHUNK_SIZE
-        const end = ((start + MAX_CHUNK_SIZE) >= file.size) ? file.size : start + MAX_CHUNK_SIZE
+        const end
+          = start + MAX_CHUNK_SIZE >= file.size
+            ? file.size
+            : start + MAX_CHUNK_SIZE
         fileReader.readAsArrayBuffer(file.slice(start, end))
       }
       loadNextChunk()
     })
   }
-  return { hash, error, loading, calculateHash, percent, current: currentChunk, total }
-};
+  return {
+    hash,
+    error,
+    loading,
+    calculateHash,
+    percent,
+    current: currentChunk,
+    total,
+  }
+}

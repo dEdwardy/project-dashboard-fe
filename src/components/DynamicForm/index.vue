@@ -2,12 +2,12 @@
 import { Form, FormItem } from '@arco-design/web-vue'
 import { get, set } from 'lodash'
 import type { IFormItem, IFormProps } from './types'
-import DefaultLayout from './DefaultLayout'
+import DefaultLayout from './DefaultLayout.vue'
 import { ComponentMaps } from './ComponentMaps'
 
-// defineOptions({
-//   name: 'DynamicForm',
-// })
+defineOptions({
+  name: 'DynamicForm',
+})
 const props = defineProps<IFormProps>()
 const emits = defineEmits(['update:model', 'submit'])
 const slots = useSlots()

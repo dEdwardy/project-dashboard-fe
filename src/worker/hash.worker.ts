@@ -7,7 +7,6 @@ import type { FileChunk } from '~/components/CustomUploader/types'
 
 let socket: Socket
 globalThis.onmessage = async (e) => {
-  console.time('upload')
   const file = e.data.file as unknown as File
   const isChunk = e.data.isChunk as unknown as boolean
   const { calculateHash } = useFileHash(file)
@@ -20,7 +19,7 @@ globalThis.onmessage = async (e) => {
   else {
     // const { setItem } = useLocalForage('cachedHashes')
     // 非切片md5 增量计算
-    const total = (Math.ceil(file.size / DEFAULT_CHUNK_SIZE))
+    const total = Math.ceil(file.size / DEFAULT_CHUNK_SIZE)
     const toUploadSlice: Omit<FileChunk, 'binary'>[] = []
     const hash = await calculateHash((hash, { current, file }) => {
       globalThis.postMessage({ type: 'chunk', file, index: current, hash })
@@ -39,18 +38,14 @@ globalThis.onmessage = async (e) => {
         file: chunk.file,
         total,
       }
-      console.time('slice upload')
-      socket.compress(true).emit('chunk', data, ({ current, total }: { current: number, total: number }) => {
-        if (current === total - 1) {
-          console.time('merge slice')
-          console.timeEnd('slice upload')
-        }
-        if (current === total) {
-          console.timeEnd('merge slice')
-          console.timeEnd('upload')
-        }
-        globalThis.postMessage({ type: 'progress', percent: current / total })
-      })
+      socket
+        .compress(true)
+        .emit('chunk', data, ({ current, total }: { current: number, total: number }) => {
+          globalThis.postMessage({
+            type: 'progress',
+            percent: current / total,
+          })
+        })
     }
 
     globalThis.postMessage({ type: 'hash', hash, isChunk })

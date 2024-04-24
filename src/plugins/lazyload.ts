@@ -49,7 +49,7 @@ const lazyLoad = {
       }
       else {
         if (el.complete && el.src !== options.loading)
-          el.src = options.error as string || ErrorImg
+          el.src = (options.error as string) || ErrorImg
         el.alt = '图片加载失败'
       }
     })

@@ -1,0 +1,89 @@
+<script setup>
+import draggable from 'vuedraggable'
+import { formConfigSymbol, generateId } from './utils'
+import { componentMap } from './componentMap'
+
+defineOptions({
+  name: 'MaterialSection',
+})
+const current = ref()
+const formConfig = inject(formConfigSymbol)
+const materials = {
+  base: [
+    { name: '单行文本', key: 'input' },
+    { name: '多行文本', key: 'textarea' },
+    { name: '计数器', key: 'counter' },
+    { name: '单选框组', key: 'radio' },
+    { name: '多选框组', key: 'checkbox' },
+    { name: '时间选择器', key: 'timepicker' },
+    { name: '日期选择器', key: 'datepicker' },
+    { name: '评分', key: 'rate' },
+    { name: '颜色选择器', key: 'colorpicker' },
+    { name: '下拉选择框', key: 'select' },
+    { name: '开关', key: 'switch' },
+    { name: '滑块', key: 'slider' },
+    { name: '文字', key: 'text' },
+  ],
+  addition: [
+    { name: '自定义区域', key: 'customarea' },
+    { name: '图片', key: 'uploader' },
+    { name: '编辑器', key: 'editor' },
+    { name: '级联选择器', key: 'cascader' },
+  ],
+  layout: [{ name: '栅格布局', key: 'layout' }],
+}
+function handleClick(element) {
+  console.log(element)
+}
+function handleClone(item) {
+  const id = `${item.key}-${generateId()}`
+  return {
+    ...item,
+    label: item.name,
+    id,
+    active: false,
+    props: Object.fromEntries(
+      Object.entries(componentMap[item.key].props ?? {}).map(([k, v]) => [
+        k,
+        markRaw(v),
+      ]),
+    ),
+  }
+}
+</script>
+
+<template>
+  <div class="flex flex-col">
+    <div v-for="(item, index) of Object.keys(materials)" :key="index" class="flex-1">
+      <draggable
+        tag="div"
+        :list="materials[item]"
+        ghost-class="ghost"
+        :group="{ name: 'material', pull: 'clone' }"
+        class="grid-template grid gap-1 p-3"
+        item-key="key"
+        :sort="false"
+        :clone="handleClone"
+      >
+        <template #item="{ element }">
+          <div
+            hover-border="dashed blue"
+            class="h-30px w-90px flex cursor-pointer items-center justify-center border-1px bg-#f4f6fc"
+            @click="() => handleClick(element)"
+          >
+            {{ element.name }}
+          </div>
+        </template>
+      </draggable>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.grid-template {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.ghost {
+  opacity: 0.2;
+}
+</style>

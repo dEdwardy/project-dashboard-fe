@@ -4,7 +4,11 @@ import HashWorker from '~/worker/hash.worker?worker'
 
 export const DEFAULT_CHUNK_SIZE = 1 * 1024 * 1024
 export type Fn<T> = (...args: any) => T
-export async function promiseAllLimit(arr: any[], fn: (arg: any) => Promise<any>, limit: number) {
+export async function promiseAllLimit(
+  arr: any[],
+  fn: (arg: any) => Promise<any>,
+  limit: number,
+) {
   const result = []
   const executing: any[] = []
   for (let i = 0; i < arr.length; i++) {
@@ -25,15 +29,19 @@ export function readFileChunk(blob: Blob | File) {
     const reader = new FileReader()
     reader.readAsArrayBuffer(blob)
     reader.onload = () => {
-    // resolve(e.target!.result)
+      // resolve(e.target!.result)
       resolve(reader.result as unknown as ArrayBuffer)
     }
     reader.onerror = reject
   })
 }
-export function createMd5(file: File | Blob, worker: Worker, isChunk = false): Promise<string> {
+export function createMd5(
+  file: File | Blob,
+  worker: Worker,
+  isChunk = false,
+): Promise<string> {
   return new Promise((resolve, reject) => {
-  // chunk或小文件直接hash
+    // chunk或小文件直接hash
     if (isChunk || file.size < DEFAULT_CHUNK_SIZE) {
       readFileChunk(file).then(async (buffer: ArrayBuffer) => {
         const hash = await md5(new Uint8Array(buffer))
@@ -41,7 +49,7 @@ export function createMd5(file: File | Blob, worker: Worker, isChunk = false): P
       })
     }
     else {
-    // 大文件 md5 worker增量计算
+      // 大文件 md5 worker增量计算
       worker.onmessage = (e) => {
         if (e.data.type === 'hash')
           resolve(e.data.hash)

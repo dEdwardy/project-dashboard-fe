@@ -4,11 +4,11 @@ import App from './App.vue'
 import DefaultImg from '~/assets/default.png'
 
 // import {Promise} from 'bluebird';
-import '@arco-design/web-vue/dist/arco.css'
 import '@unocss/reset/tailwind.css'
 import './styles/main.css'
 import 'uno.css'
 import lazyLoad from '~/plugins/lazyload'
+import '@arco-design/web-vue/dist/arco.css'
 
 const app = createApp(App)
 app.config.errorHandler = (err) => {

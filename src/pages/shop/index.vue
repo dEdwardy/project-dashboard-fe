@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { Select } from '@arco-design/web-vue'
 import DynamicForm from '~/components/DynamicForm/index.vue'
 import type { DynamicFormProps } from '~/components/DynamicForm/types'
 import VirtualList from '~/components/VirtualList/VirtualList.vue'
 
+// const Layout2 = Layout as unknown as typeof DefaultLayout
 // defineOptions({
 //   name: 'ShopPage',
 // })
@@ -12,10 +14,20 @@ const props: DynamicFormProps = {
   schema: [
     { label: '输入1', component: 'input', key: 'a', required: true },
     {
-      label: '输入2',
-      component: 'input',
+      label: '输入2xxxxx',
+      component: Select,
+      componentProps: {
+        options: ['1', '2', '3'],
+      },
+      labelColProps: {
+        span: 5,
+        offset: 0,
+      },
+      wrapperColProps: {
+        span: 19,
+        offset: 0,
+      },
       key: 'b',
-      show: ({ data }) => data.a === '123',
       required: true,
     },
     {
@@ -37,7 +49,6 @@ const props: DynamicFormProps = {
       label: 'Array',
       type: 'list',
       key: 'd',
-      max: 2,
       children: [
         { label: '输入1', component: 'input', key: 'e', required: true },
         { label: '输入2', component: 'input', key: 'f', required: true },
@@ -56,29 +67,41 @@ const props: DynamicFormProps = {
 }
 const handleReset = (): void => formRef.value!.form!.resetFields()
 const handleClearValidate = (): void => formRef.value!.form?.clearValidate()
-function handleSubmit () {
-  return formRef.value!.form!.validate().then((err) => {
-    if (!err)
-      console.log(props.model)
-
-    else
+function handleSubmit() {
+  return formRef
+    .value!.validate()
+    .then((data) => {
+      console.log(data)
+    })
+    .catch((err) => {
       console.error(err)
-  })
+    })
 }
-const list: Array<{ id: number, content: string }> = Array.from({ length: 100 }).fill(undefined).map((_, index) => {
-  const height = Math.random() * 40 + 20
-  const randomContent = 'xxx <br> xx'.repeat(Math.ceil(Math.random() * 5))
-  const content = `${index + 1} :${randomContent}xxx`
-  return { content, style: { height: `${height}px`, lineHeight: `${height}px` }, id: index }
-})
+const list: Array<{ id: number, content: string }> = Array.from({ length: 100 })
+  .fill(undefined)
+  .map((_, index) => {
+    const height = Math.random() * 40 + 20
+    const randomContent = 'xxx <br> xx'.repeat(Math.ceil(Math.random() * 5))
+    const content = `${index + 1} :${randomContent}xxx`
+    return {
+      content,
+      style: { height: `${height}px`, lineHeight: `${height}px` },
+      id: index,
+    }
+  })
 </script>
 
 <template>
-  <div class="mx-auto min-w-160">
-    <div>shop</div>
-    <div>1.DynamicForm </div>
-    <div>2.Virtual List </div>
-    <div>3.首屏优化 </div>
+  <div class="mx-auto min-w-160 text-left">
+    <div class="mx-auto mb-4 w-300px">
+      <div>shop</div>
+      <div>
+        1.DynamicForm
+        <span class="btn" @click="() => $router.push('/form-design')">FormDesign</span>
+      </div>
+      <div>2.Virtual List</div>
+      <div>3.首屏优化</div>
+    </div>
     <div>
       <a-tabs>
         <a-tab-pane key="1" title="1.DynamicForm">
@@ -98,10 +121,10 @@ const list: Array<{ id: number, content: string }> = Array.from({ length: 100 })
           </div>
         </a-tab-pane>
         <a-tab-pane key="2" title="2.VirtualList">
-          <div style="height:200px">
+          <div style="height: 200px">
             <VirtualList :data-source="list" :estimated-height="20">
               <template #item="{ item }">
-                <div v-html="item.content"></div>
+                <div v-html="item.content" />
               </template>
             </VirtualList>
           </div>

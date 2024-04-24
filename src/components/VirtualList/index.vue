@@ -1,7 +1,7 @@
-<script setup lang="ts" generic="T extends { id:number }">
-import { throttle } from 'lodash';
+<script setup lang="ts" generic="T extends { id: number }">
+// import { throttle } from 'lodash';
+import type { CSSProperties } from 'vue'
 import type { IPostions, IProps } from './types'
-import { CSSProperties } from 'vue';
 
 const props = withDefaults(defineProps<IProps<T>>(), {
   // viewHeight:300,
@@ -13,6 +13,7 @@ const contentRef = ref<HTMLDivElement>()
 const listRef = ref<HTMLDivElement>()
 const positions = ref<IPostions[]>([])
 const state = reactive({
+  scrollTop: 0,
   loading: props.loading,
   viewHeight: 0,
   listHeight: 0,
@@ -20,66 +21,88 @@ const state = reactive({
   maxCount: 0,
   preLen: 0,
 })
-const endIndex = computed(() => Math.min(props.dataSource.length, state.startIndex + state.maxCount))
-const renderList = computed(() => props.dataSource.slice(state.startIndex, endIndex.value))
-const offsetDistance = computed(() => state.startIndex > 0 ? positions.value[state.startIndex - 1].bottom : 0)
-const scrollStyle = computed(() => ({
-  height: (state.listHeight - offsetDistance.value) + 'px',
-  transform: `transform3d(0,${offsetDistance}px,0)`
-} as CSSProperties))
+const endIndex = computed(() =>
+  Math.min(props.dataSource.length, state.startIndex + state.maxCount),
+)
+const renderList = computed(() =>
+  props.dataSource.slice(state.startIndex, endIndex.value),
+)
+const offsetDistance = computed(() =>
+  state.startIndex > 0 ? positions.value[state.startIndex - 1].bottom : 0,
+)
+const scrollStyle = computed(
+  () =>
+    ({
+      height: `${state.listHeight - offsetDistance.value}px`,
+      transform: `transform3d(0,${offsetDistance.value}px,0)`,
+    }) as CSSProperties,
+)
 
-watch([() => listRef.value, () => props.dataSource.length], () => {
-  console.log('initPosition && setPosition')
-  props.dataSource.length && initPosition()
-  nextTick(() => {
-    props.dataSource.length && setPosition()
-  })
-})
+// watch([() => listRef.value, () => props.dataSource.length], () => {
+//   console.log('watch1 触发')
+//   props.dataSource.length && initPosition()
+//   nextTick(() => {
+//     props.dataSource.length && setPosition()
+//   })
+// })
 watch(
   () => state.startIndex,
   () => {
-    setPosition()
-  })
-const handleScroll = throttle(function () {
-  console.log('scroll')
+    console.log('watch2 触发')
+    nextTick(() => {
+      setPosition()
+    })
+  },
+)
+const handleScroll = function () {
   const { scrollTop, clientHeight, scrollHeight } = contentRef.value!
-  console.log('scrollHeight',scrollHeight)
-  console.log('clientHeight',clientHeight)
+  state.scrollTop = scrollTop
   state.startIndex = binarySearch(positions.value, scrollTop)
-  console.log('state.startIndex',state.startIndex)
+  console.log('scroll触发 state.startIndex', state.startIndex)
   const bottom = scrollHeight - clientHeight - scrollTop
   if (bottom <= 20)
     !state.loading && emits('handleMore')
-}, 50)
-const init = () => {
+}
+function init() {
   state.viewHeight = contentRef.value ? contentRef.value!.offsetHeight : 0
   state.maxCount = Math.ceil(state.viewHeight / props.estimatedHeight) + 1
-  console.error('init',state.viewHeight, state.maxCount)
   contentRef.value && contentRef.value.addEventListener('scroll', handleScroll)
 }
-const destory = () => {
+function destory() {
   contentRef.value && contentRef.value.removeEventListener('scroll', handleScroll)
 }
-function initPosition () {
+// 初始化：拿到数据源初始化 pos 数组
+function initPosition() {
   const pos: IPostions[] = []
-  const len = props.dataSource.length
-  for (let i = 0; i < len; i++) {
+  const disLen = props.dataSource.length - state.preLen
+  const currentLen = positions.value.length
+  const preBottom = positions.value[currentLen - 1]
+    ? positions.value[currentLen - 1].bottom
+    : 0
+  console.error('disLen', disLen)
+  for (let i = 0; i < disLen; i++) {
+    const item = props.dataSource[state.preLen + i]
     pos.push({
-      index: i,
+      index: item.id,
       height: props.estimatedHeight,
-      top: i * props.estimatedHeight,
-      bottom: (i + 1) * props.estimatedHeight,
+      top: preBottom
+        ? preBottom + i * props.estimatedHeight
+        : item.id * props.estimatedHeight,
+      bottom: preBottom
+        ? preBottom + (i + 1) * props.estimatedHeight
+        : (item.id + 1) * props.estimatedHeight,
       dHeight: 0,
     })
   }
-  positions.value = [...positions.value, ...pos]
+  console.error(pos)
+  positions.value.push(...pos)
+  state.preLen = props.dataSource.length
 }
 // 数据item渲染后 更新item真实高度
-function setPosition () {
+function setPosition() {
   const nodes = listRef.value!.children
   if (!nodes || nodes.length === 0)
     return
-  console.log('computing')
   Array.from(nodes).forEach((node) => {
     const rect = node.getBoundingClientRect()
     const id = Number(node.getAttribute('data-id'))
@@ -99,16 +122,15 @@ function setPosition () {
     const item = positions.value[i]
     item.top = positions.value[i - 1].bottom
     item.bottom = item.bottom - startDHeight
-    if (item.dHeight) {
+    if (item.dHeight !== 0) {
       startDHeight += item.dHeight
       item.dHeight = 0
     }
   }
   state.listHeight = positions.value[len - 1].bottom
 }
-
 // 二分查找
-function binarySearch (list: IPostions[], value: number) {
+function binarySearch(list: IPostions[], value: number) {
   let left = 0
   let right = list.length - 1
   let templateIndex = -1
@@ -116,12 +138,12 @@ function binarySearch (list: IPostions[], value: number) {
     const midIndex = Math.floor((left + right) / 2)
     const midValue = list[midIndex].bottom
     if (midValue === value) {
-      return midIndex
+      return midIndex + 1
     }
     else if (midValue < value) {
       left = midIndex + 1
     }
-    else if (midIndex > value) {
+    else if (midValue > value) {
       if (templateIndex === -1 || templateIndex > midIndex)
         templateIndex = midIndex
       right = midIndex
@@ -130,7 +152,13 @@ function binarySearch (list: IPostions[], value: number) {
   return templateIndex
 }
 onMounted(() => {
-    init()
+  initPosition()
+  nextTick(() => {
+    setPosition()
+  })
+})
+onMounted(() => {
+  init()
 })
 onUnmounted(() => {
   destory()
@@ -140,9 +168,11 @@ onUnmounted(() => {
 <template>
   <div class="virtual-list-container h-100% w-100%" :loading="state.loading">
     <div ref="contentRef" class="virtual-list-content h-100% w-100% overflow-auto">
-      <div ref="listRef" class="virtual-list " :style="scrollStyle">
-        <div v-for="item of renderList" :key="item.id" class="virtual-list-item box-border w-100%"
-          :data-id="String(item.id)">
+      <div ref="listRef" class="virtual-list" :style="scrollStyle">
+        <div
+          v-for="item of renderList" :key="item.id" class="virtual-list-item box-border w-100%"
+          :data-id="String(item.id)"
+        >
           <slot name="item" :item />
         </div>
       </div>

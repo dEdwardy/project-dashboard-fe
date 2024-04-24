@@ -1,14 +1,13 @@
 <script setup lang="ts">
-const imgs: string[] = Array.from({ length: 100 }).fill(undefined).map((_, index) => `${index}`)
+const imgs: string[] = Array.from({ length: 100 })
+  .fill(undefined)
+  .map((_, index) => `${index}`)
 </script>
 
 <template>
   <div>
     <div>vip</div>
-    1.图片懒加载
-    2.DynamicForm (vue2 json schema)
-    3.前端水印
-    4.webpack 优化
+    1.图片懒加载 2.DynamicForm (vue2 json schema) 3.前端水印 4.webpack 优化
     <a-tabs lazy-load>
       <a-tab-pane key="1" title="1.图片懒加载">
         <div class="grid grid-cols-3 gap-4">

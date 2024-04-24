@@ -19,19 +19,19 @@ export default defineConfig({
     },
   },
   plugins: [
-    // VueMacros({
-    //   defineOptions: false,
-    //   defineModels: false,
-    //   plugins: {
-    //     vue: Vue({
-    //       script: {
-    //         propsDestructure: true,
-    //         defineModel: true,
-    //       },
-    //     }),
-    //   },
-    // }),
-    Vue(),
+    VueMacros({
+      defineOptions: false,
+      defineModels: false,
+      plugins: {
+        vue: Vue({
+          script: {
+            propsDestructure: true,
+            defineModel: true,
+          },
+        }),
+      },
+    }),
+    // Vue(),
     vueJsx(),
     // https://github.com/posva/unplugin-vue-router
     VueRouter(),
@@ -49,18 +49,14 @@ export default defineConfig({
         },
       ],
       dts: true,
-      dirs: [
-        './src/composables',
-      ],
+      dirs: ['./src/composables'],
       vueTemplate: true,
     }),
 
     // https://github.com/antfu/vite-plugin-components
     Components({
       dts: true,
-      resolvers: [
-        ArcoResolver({ sideEffect: true }),
-      ],
+      resolvers: [ArcoResolver({ sideEffect: true })],
     }),
 
     // https://github.com/antfu/unocss
