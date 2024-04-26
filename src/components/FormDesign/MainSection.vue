@@ -1,8 +1,9 @@
 <script setup lang="jsx">
 import Draggable from 'vuedraggable'
-import { Form, FormItem } from '@arco-design/web-vue'
-import { componentMap } from './componentMap'
-import { formConfigSymbol } from './utils'
+import { ElForm as Form, ElFormItem as FormItem } from 'element-plus'
+import { componentMap, componentConfigMap } from './componentMap'
+import { formConfigSymbol, setCurrentSymbol, setFormItemPropsSymbol } from './utils'
+import { cloneDeep } from 'lodash';
 
 defineOptions({
   name: 'MainSection',
@@ -11,47 +12,54 @@ const list = ref([])
 const formModel = reactive({})
 const current = ref()
 const formConfig = inject(formConfigSymbol)
-watch(
-  () => formConfig.formItemProps,
-  (v) => {
-    list.value = formConfig.formItemProps
-  },
-  {
-    deep: true,
-  },
-)
+const setFormItemsProps = inject(setFormItemPropsSymbol)
+const setCurrent = inject(setCurrentSymbol)
 watch(list, () => {
+  console.log('list change')
   const len = list.value.length
   list.value.forEach((item, index) => {
-    if (index === len - 1)
+    if (index === len - 1) {
       item.active = true
-    else item.active = false
+    } else {
+      if (item.active) item.active = false
+    }
   })
-  formConfig.formItemProps = list.value
-})
-function handleSelect(index) {
+  current.value = len - 1
+  // set added active
+  setFormItemsProps(list.value)
+  setCurrent(len - 1)
+},)
+function handleSelect (index) {
   const len = list.value.length
   const oldIndex = list.value.findIndex(item => item.active === true)
   list.value.splice(oldIndex, 1, { ...list.value[oldIndex], active: false })
   list.value.splice(index, 1, { ...list.value[index], active: true })
+  current.value = index
+  setCurrent(index)
 }
-function MainSectionApp() {
-  const layout
-    = formConfig?.formProps?.align === 'top' ? 'vertical' : 'horizontal'
+function MainSectionApp () {
+  const renderComponent = (type, componentProps) => {
+    const { key, ...props } = componentProps
+    return h(componentMap[type], {
+      ...props,
+      style: { width: '100%' },
+      //readonly: true,
+    })
+  }
   return (
     <Form
       class="form px-4 py-3"
       model={formModel}
       disabled={true}
-      label-align={formConfig?.formProps?.align}
-      layout={layout}
+      labelPosition={formConfig?.formProps?.labelPosition}
+      labelWidth={formConfig?.formProps?.labelWidth}
     >
       <Draggable
         class="dragArea list-group h-100% p-4"
         ghost-class="ghost"
         v-model={list.value}
         group="material"
-        item-key="key"
+        item-key="id"
       >
         {{
           item: ({ element, index }) => {
@@ -59,8 +67,12 @@ function MainSectionApp() {
             const activeClass = disabled
               ? 'border-1px border-transparent'
               : 'border-1px border-blue border-dashed'
-            const componentProps
-              = element.props ?? componentMap[element.key]?.props ?? {}
+            const type = element.key.split('-').shift()
+            const defaultProps
+              = element.props ?? componentConfigMap[type]?.model ?? {}
+            const currentFormItem = formConfig.formItemProps[index] ?? {}
+            const { id, props: currentProps } = currentFormItem
+            let { key, ...addedProps } = currentProps
             return (
               <div class="list-group-item">
                 <FormItem
@@ -69,10 +81,14 @@ function MainSectionApp() {
                   class={[activeClass, 'hover:cursor-pointer']}
                   onClick={() => handleSelect(index)}
                 >
-                  {h(componentMap[element.key].component, {
-                    ...componentProps,
-                    style: { width: '100%' },
-                  })}
+                  {
+                    renderComponent(type, {
+                      key: id,
+                      size: formConfig.formProps.size,
+                      ...defaultProps,
+                      ...addedProps
+                    })
+                  }
                 </FormItem>
               </div>
             )

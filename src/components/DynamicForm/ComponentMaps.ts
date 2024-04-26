@@ -1,7 +1,10 @@
-import { Input, Select } from '@arco-design/web-vue'
+import { ElDatePicker, ElInput, ElOption, ElSelect } from 'element-plus'
 
 export const ComponentMaps = {
-  input: Input,
-  select: Select,
+  'input': ElInput,
+  'select': ElSelect,
+  'option': ElOption,
+  'date-picker': ElDatePicker,
+
 }
 export type ComponentString = keyof typeof ComponentMaps

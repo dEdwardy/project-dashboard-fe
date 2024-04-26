@@ -16,13 +16,16 @@ export interface IFormProps {
   submitHidden?: boolean
   labelColProps?: any
   wrapperColProps?: any
+  disabled?: boolean
+  size?: 'mini' | 'small' | 'medium' | 'large'
 }
+type IFormatFn = ({ data }: { data: Record<string, any> }) => any
 export interface IFormItem {
   label?: string
-  labelAlign?: string
-  labelColProps?: any
-  wrapperColProps?: any
-  key: string
+  labelWidth?: string | number
+  labelPosition?: string
+  key?: string // 对应表单提交key
+  format?: IFormatFn // TODO 表单组件数据结构调整
   component?: Component | ComponentString
   componentProps?: Record<string, any>
   rules?: Get<any[], ICallWithArgs>
@@ -32,6 +35,7 @@ export interface IFormItem {
   show?: Get<boolean, ICallWithArgs>
   min?: Get<number> // only work when type === 'list'
   max?: Get<number> // only work when type === 'list'
+  dependencies?: string[] // TODO 依赖处理
 }
 interface ICallWithArgs {
   data: Record<string, unknown>

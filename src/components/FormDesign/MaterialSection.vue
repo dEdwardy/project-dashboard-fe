@@ -1,13 +1,11 @@
 <script setup>
 import draggable from 'vuedraggable'
-import { formConfigSymbol, generateId } from './utils'
-import { componentMap } from './componentMap'
+import { generateId } from './utils'
+import {componentConfigMap } from './componentMap'
 
 defineOptions({
   name: 'MaterialSection',
 })
-const current = ref()
-const formConfig = inject(formConfigSymbol)
 const materials = {
   base: [
     { name: '单行文本', key: 'input' },
@@ -36,18 +34,23 @@ function handleClick(element) {
   console.log(element)
 }
 function handleClone(item) {
-  const id = `${item.key}-${generateId()}`
+  const id = generateId()
+  const key = `${item.key}-${id}`
   return {
     ...item,
     label: item.name,
-    id,
+    id, // 用于渲染
+    key, // 用于form提交
     active: false,
-    props: Object.fromEntries(
-      Object.entries(componentMap[item.key].props ?? {}).map(([k, v]) => [
-        k,
-        markRaw(v),
-      ]),
-    ),
+    props: {
+      key,
+      ...Object.fromEntries(
+        Object.entries(componentConfigMap[item.key].model ?? {}).map(([k, v]) => [
+          k,
+          markRaw(v),
+        ]),
+      ),
+    },
   }
 }
 </script>
@@ -56,14 +59,8 @@ function handleClone(item) {
   <div class="flex flex-col">
     <div v-for="(item, index) of Object.keys(materials)" :key="index" class="flex-1">
       <draggable
-        tag="div"
-        :list="materials[item]"
-        ghost-class="ghost"
-        :group="{ name: 'material', pull: 'clone' }"
-        class="grid-template grid gap-1 p-3"
-        item-key="key"
-        :sort="false"
-        :clone="handleClone"
+        tag="div" :list="materials[item]" ghost-class="ghost" :group="{ name: 'material', pull: 'clone' }"
+        class="grid-template grid gap-1 p-3" item-key="id" :sort="false" :clone="handleClone"
       >
         <template #item="{ element }">
           <div
@@ -83,6 +80,7 @@ function handleClone(item) {
 .grid-template {
   grid-template-columns: 1fr 1fr 1fr;
 }
+
 .ghost {
   opacity: 0.2;
 }

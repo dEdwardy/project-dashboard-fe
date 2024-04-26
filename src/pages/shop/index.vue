@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Select } from '@arco-design/web-vue'
 import DynamicForm from '~/components/DynamicForm/index.vue'
 import type { DynamicFormProps } from '~/components/DynamicForm/types'
 import VirtualList from '~/components/VirtualList/VirtualList.vue'
@@ -12,23 +11,24 @@ const formRef = ref<InstanceType<typeof DynamicForm>>()
 // no type
 const props: DynamicFormProps = {
   schema: [
-    { label: '输入1', component: 'input', key: 'a', required: true },
+    { label: '输入1', component: 'input', key: 'a', show: ({ data }) => data.b == '1', },
     {
       label: '输入2xxxxx',
-      component: Select,
+      key: 'b',
+      required: true,
+      component: 'select',
       componentProps: {
         options: ['1', '2', '3'],
       },
-      labelColProps: {
-        span: 5,
-        offset: 0,
-      },
-      wrapperColProps: {
-        span: 19,
-        offset: 0,
-      },
-      key: 'b',
-      required: true,
+      children:['a','c'].map(k => ({
+        key:k,
+        component:'option',
+        componentProps:{
+          label:k,
+          value:k,
+          key:k
+        }
+      }))
     },
     {
       label: 'Group1',
@@ -37,12 +37,31 @@ const props: DynamicFormProps = {
       children: [
         { label: '输入1', component: 'input', key: 'a', required: true },
         {
-          label: '输入2',
+          label: '输入3-1',
           component: 'input',
-          key: 'b',
-          show: ({ data }) => (data.c as unknown as any).a === '234',
+          key: 'd',
+          show: ({ data }) => (data.c as unknown as any).a === '123',
           required: true,
         },
+        {
+          label: '输入3-2',
+          component: 'input',
+          key: 'd',
+          show: ({ data }) => (data.c as unknown as any).a !== '123',
+          required: true,
+        },
+        {
+          label: 'group2',
+          type:'group',
+          key: 'g',
+          children: [
+            {
+              label: '1',
+              component: 'input',
+              key: "c"
+            }
+          ]
+        }
       ],
     },
     {
@@ -51,14 +70,14 @@ const props: DynamicFormProps = {
       key: 'd',
       children: [
         { label: '输入1', component: 'input', key: 'e', required: true },
-        { label: '输入2', component: 'input', key: 'f', required: true },
+        { label: '输入2', component: 'input', key: 'f', show: ({ data }: any) => data?.d[0]?.e === '123', required: true },
       ],
     },
   ],
   model: reactive({
     a: '',
     b: '',
-    c: { a: '', b: '' },
+    c: { a: '', b: '', d: '',g:{ c:"" } },
     d: [{ e: '', f: '' }],
   }),
   // rules: {
@@ -67,7 +86,7 @@ const props: DynamicFormProps = {
 }
 const handleReset = (): void => formRef.value!.form!.resetFields()
 const handleClearValidate = (): void => formRef.value!.form?.clearValidate()
-function handleSubmit() {
+function handleSubmit () {
   return formRef
     .value!.validate()
     .then((data) => {

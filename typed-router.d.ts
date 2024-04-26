@@ -23,6 +23,8 @@ declare module 'vue-router/auto-routes' {
     '/form-design/': RouteRecordInfo<'/form-design/', '/form-design', Record<never, never>, Record<never, never>>,
     '/okr/': RouteRecordInfo<'/okr/', '/okr', Record<never, never>, Record<never, never>>,
     '/shop/': RouteRecordInfo<'/shop/', '/shop', Record<never, never>, Record<never, never>>,
+    '/test/': RouteRecordInfo<'/test/', '/test', Record<never, never>, Record<never, never>>,
+    '/test/A': RouteRecordInfo<'/test/A', '/test/A', Record<never, never>, Record<never, never>>,
     '/vip/': RouteRecordInfo<'/vip/', '/vip', Record<never, never>, Record<never, never>>,
   }
 }

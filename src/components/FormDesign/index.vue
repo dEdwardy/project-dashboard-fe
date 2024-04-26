@@ -3,17 +3,32 @@ import MainSection from './MainSection.vue'
 import MaterialSection from './MaterialSection.vue'
 import PropsSection from './PropsSection.vue'
 import type { FormConfig } from './utils'
-import { formConfigSymbol } from './utils'
+import { formConfigSymbol, setCurrentSymbol, setFormItemPropsSymbol, setFormPropsSymbol } from './utils'
 
 const formConfig = reactive<FormConfig>({
   formProps: {
     align: 'right',
-    labelWidth: '100',
+    labelWidth: 100,
     size: 'small',
   },
   formItemProps: [],
 })
+function setFormProps(data: any) {
+  formConfig.formProps = data
+}
+function setFormItemProps(data: any) {
+  formConfig.formItemProps = data
+}
+function setCurrent(idx:number) {
+  formConfig.formItemProps?.forEach((item,index) => {
+    if(index === idx && !item.active)item.active =true
+    if(index !== idx && item.active) item.active = false
+  })
+}
 provide(formConfigSymbol, formConfig)
+provide(setFormPropsSymbol, setFormProps)
+provide(setFormItemPropsSymbol, setFormItemProps)
+provide(setCurrentSymbol, setCurrent)
 
 function FormDesignApp() {
   return (

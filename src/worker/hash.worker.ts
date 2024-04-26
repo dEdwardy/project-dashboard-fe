@@ -38,14 +38,12 @@ globalThis.onmessage = async (e) => {
         file: chunk.file,
         total,
       }
-      socket
-        .compress(true)
-        .emit('chunk', data, ({ current, total }: { current: number, total: number }) => {
-          globalThis.postMessage({
-            type: 'progress',
-            percent: current / total,
-          })
+      socket.compress(true).emit('chunk', data, ({ current, total }: { current: number, total: number }) => {
+        globalThis.postMessage({
+          type: 'progress',
+          percent: current / total,
         })
+      })
     }
 
     globalThis.postMessage({ type: 'hash', hash, isChunk })

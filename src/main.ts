@@ -9,6 +9,7 @@ import './styles/main.css'
 import 'uno.css'
 import lazyLoad from '~/plugins/lazyload'
 import '@arco-design/web-vue/dist/arco.css'
+import 'element-plus/dist/index.css'
 
 const app = createApp(App)
 app.config.errorHandler = (err) => {
