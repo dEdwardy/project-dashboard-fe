@@ -19,10 +19,12 @@ function setFormProps(data: any) {
 function setFormItemProps(data: any) {
   formConfig.formItemProps = data
 }
-function setCurrent(idx:number) {
-  formConfig.formItemProps?.forEach((item,index) => {
-    if(index === idx && !item.active)item.active =true
-    if(index !== idx && item.active) item.active = false
+function setCurrent(idx: number) {
+  formConfig.formItemProps?.forEach((item, index) => {
+    if (index === idx && !item.active)
+      item.active = true
+    if (index !== idx && item.active)
+      item.active = false
   })
 }
 provide(formConfigSymbol, formConfig)

@@ -1,10 +1,10 @@
 <script lang="tsx" setup>
 import { ElForm as Form, ElFormItem as FormItem } from 'element-plus'
 import { get, omit, set } from 'lodash'
+import type { WatchStopHandle } from 'vue'
 import type { IFormItem, IFormProps } from './types'
 import DefaultLayout from './DefaultLayout.vue'
 import { ComponentMaps } from './ComponentMaps'
-import { WatchStopHandle } from 'vue'
 
 defineOptions({
   name: 'DynamicForm',
@@ -19,22 +19,25 @@ watch(formData, (v: unknown) => {
 const schema = shallowRef(props.schema)
 const formRef = ref<InstanceType<typeof Form> | undefined>()
 const dependenciesRef = ref<Set<string>>(new Set())
-let stopWatch: WatchStopHandle[] = []
+const stopWatch: WatchStopHandle[] = []
 const hiddenKeys: Ref<Set<string>> = ref(new Set())
-const handleValidate = () => new Promise((resolve, reject) => {
-  formRef.value?.validate((valid,err) => {
-    if (!valid) {
-      reject(err)
-    } else {
-      const hiddenKeysArray = Array.from(hiddenKeys.value)
-      const visibleData = omit(formData.value, hiddenKeysArray)
-      resolve(visibleData)
-    }
+function handleValidate() {
+  return new Promise((resolve, reject) => {
+    formRef.value?.validate((valid, err) => {
+      if (!valid) {
+        reject(err)
+      }
+      else {
+        const hiddenKeysArray = Array.from(hiddenKeys.value)
+        const visibleData = omit(formData.value, hiddenKeysArray)
+        resolve(visibleData)
+      }
+    })
   })
-})
+}
 defineExpose({
   form: formRef,
-  validate: handleValidate
+  validate: handleValidate,
 })
 // onMounted(() => {
 //   const keys: [string[], string][] = Array.from(dependenciesRef.value.keys()).map(k => JSON.parse(k))
@@ -52,10 +55,10 @@ defineExpose({
 onUnmounted(() => {
   stopWatch.length && stopWatch.forEach(stop => stop())
 })
-function renderSchema () {
+function renderSchema() {
   return schema.value.map((child: IFormItem) => renderSchemaItem(child))
 }
-function renderFormItem ({ label, key ='', component, componentProps, show, rules, required, children, dependencies, max }: IFormItem) {
+function renderFormItem({ label, key = '', component, componentProps, show, rules, required, children, dependencies, max }: IFormItem) {
   if (!component) {
     console.warn('基础组件需要 component')
     return
@@ -82,10 +85,12 @@ function renderFormItem ({ label, key ='', component, componentProps, show, rule
   }
   const isShow = typeof show === 'function' ? show({ data, value }) : show
   if (isShow === false) {
-    if (key) hiddenKeys.value.add(key)
+    if (key)
+      hiddenKeys.value.add(key)
     return
   }
-  if (key) hiddenKeys.value.delete(key)
+  if (key)
+    hiddenKeys.value.delete(key)
   return (
     <FormItem label={label} prop={key} required={realRequried} rules={realRules}>
       <component
@@ -99,17 +104,17 @@ function renderFormItem ({ label, key ='', component, componentProps, show, rule
         }
       >
         {{
-          default: () => children?.map(item => renderChildNodes(item))
+          default: () => children?.map(item => renderChildNodes(item)),
         }}
       </component>
     </FormItem>
   )
 }
-function renderChildNodes ({ component, componentProps }: Pick<IFormItem, 'component' | 'componentProps'>) {
-  const Cmp:any = typeof component === 'string' ? ComponentMaps[component] : component
+function renderChildNodes({ component, componentProps }: Pick<IFormItem, 'component' | 'componentProps'>) {
+  const Cmp: any = typeof component === 'string' ? ComponentMaps[component] : component
   return <Cmp {...componentProps}></Cmp>
 }
-function renderSchemaItem ({ type, label, key, component, componentProps, show, rules, required, children, dependencies, max }: IFormItem) {
+function renderSchemaItem({ type, label, key, component, componentProps, show, rules, required, children, dependencies, max }: IFormItem) {
   if (type === 'list') {
     if (!children) {
       console.warn('list must have children')
@@ -126,9 +131,9 @@ function renderSchemaItem ({ type, label, key, component, componentProps, show, 
     }, {})
     const handleAdd = (e: MouseEvent) => {
       e.preventDefault()
-      formData.value[key].push(getListItemDefault())
+      formData.value[key!].push(getListItemDefault())
     }
-    const len = formData.value[key].length
+    const len = formData.value[key!].length
     const buttonContent = (max && max <= len) ? undefined : <button onClick={handleAdd}>添加</button>
     const components = ({ index }: { index: number }) => {
       // children key 拼接
@@ -154,7 +159,7 @@ function renderSchemaItem ({ type, label, key, component, componentProps, show, 
       <DefaultLayout>
         {{
           default: () => children.map(
-            child => renderSchemaItem({ ...child, key: key ? `${key}.${child.key}` : child.key })
+            child => renderSchemaItem({ ...child, key: key ? `${key}.${child.key}` : child.key }),
           ),
           label: () => label,
         }}
@@ -167,7 +172,7 @@ function renderSchemaItem ({ type, label, key, component, componentProps, show, 
   }
 }
 
-function FormApp () {
+function FormApp() {
   return (
     <Form ref={formRef} model={props.model} rules={props.rules}>
       {

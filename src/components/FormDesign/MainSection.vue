@@ -1,9 +1,8 @@
 <script setup lang="jsx">
 import Draggable from 'vuedraggable'
 import { ElForm as Form, ElFormItem as FormItem } from 'element-plus'
-import { componentMap, componentConfigMap } from './componentMap'
+import { componentConfigMap, componentMap } from './componentMap'
 import { formConfigSymbol, setCurrentSymbol, setFormItemPropsSymbol } from './utils'
-import { cloneDeep } from 'lodash';
 
 defineOptions({
   name: 'MainSection',
@@ -18,18 +17,18 @@ watch(list, () => {
   console.log('list change')
   const len = list.value.length
   list.value.forEach((item, index) => {
-    if (index === len - 1) {
+    if (index === len - 1)
       item.active = true
-    } else {
-      if (item.active) item.active = false
-    }
+    else
+      if (item.active)
+        item.active = false
   })
   current.value = len - 1
   // set added active
   setFormItemsProps(list.value)
   setCurrent(len - 1)
-},)
-function handleSelect (index) {
+})
+function handleSelect(index) {
   const len = list.value.length
   const oldIndex = list.value.findIndex(item => item.active === true)
   list.value.splice(oldIndex, 1, { ...list.value[oldIndex], active: false })
@@ -37,13 +36,13 @@ function handleSelect (index) {
   current.value = index
   setCurrent(index)
 }
-function MainSectionApp () {
+function MainSectionApp() {
   const renderComponent = (type, componentProps) => {
     const { key, ...props } = componentProps
     return h(componentMap[type], {
       ...props,
       style: { width: '100%' },
-      //readonly: true,
+      // readonly: true,
     })
   }
   return (
@@ -72,7 +71,7 @@ function MainSectionApp () {
               = element.props ?? componentConfigMap[type]?.model ?? {}
             const currentFormItem = formConfig.formItemProps[index] ?? {}
             const { id, props: currentProps } = currentFormItem
-            let { key, ...addedProps } = currentProps
+            const { key, ...addedProps } = currentProps
             return (
               <div class="list-group-item">
                 <FormItem
@@ -86,7 +85,7 @@ function MainSectionApp () {
                       key: id,
                       size: formConfig.formProps.size,
                       ...defaultProps,
-                      ...addedProps
+                      ...addedProps,
                     })
                   }
                 </FormItem>

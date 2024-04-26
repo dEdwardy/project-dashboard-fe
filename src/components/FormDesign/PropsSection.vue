@@ -109,9 +109,9 @@ watch(() => local.formProps, (v) => {
 watch(() => local.formItemProps, (v) => {
   setFormItemProps!(v)
 }, {
-  deep: true
+  deep: true,
 })
-function PropsSectionApp () {
+function PropsSectionApp() {
   return (
     <div>
       <Tabs default-active-key="1">

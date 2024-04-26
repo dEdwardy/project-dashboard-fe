@@ -11,7 +11,7 @@ const formRef = ref<InstanceType<typeof DynamicForm>>()
 // no type
 const props: DynamicFormProps = {
   schema: [
-    { label: '输入1', component: 'input', key: 'a', show: ({ data }) => data.b == '1', },
+    { label: '输入1', component: 'input', key: 'a', show: ({ data }) => data.b == '1' },
     {
       label: '输入2xxxxx',
       key: 'b',
@@ -20,15 +20,15 @@ const props: DynamicFormProps = {
       componentProps: {
         options: ['1', '2', '3'],
       },
-      children:['a','c'].map(k => ({
-        key:k,
-        component:'option',
-        componentProps:{
-          label:k,
-          value:k,
-          key:k
-        }
-      }))
+      children: ['a', 'c'].map(k => ({
+        key: k,
+        component: 'option',
+        componentProps: {
+          label: k,
+          value: k,
+          key: k,
+        },
+      })),
     },
     {
       label: 'Group1',
@@ -52,16 +52,16 @@ const props: DynamicFormProps = {
         },
         {
           label: 'group2',
-          type:'group',
+          type: 'group',
           key: 'g',
           children: [
             {
               label: '1',
               component: 'input',
-              key: "c"
-            }
-          ]
-        }
+              key: 'c',
+            },
+          ],
+        },
       ],
     },
     {
@@ -77,7 +77,7 @@ const props: DynamicFormProps = {
   model: reactive({
     a: '',
     b: '',
-    c: { a: '', b: '', d: '',g:{ c:"" } },
+    c: { a: '', b: '', d: '', g: { c: '' } },
     d: [{ e: '', f: '' }],
   }),
   // rules: {
@@ -86,7 +86,7 @@ const props: DynamicFormProps = {
 }
 const handleReset = (): void => formRef.value!.form!.resetFields()
 const handleClearValidate = (): void => formRef.value!.form?.clearValidate()
-function handleSubmit () {
+function handleSubmit() {
   return formRef
     .value!.validate()
     .then((data) => {

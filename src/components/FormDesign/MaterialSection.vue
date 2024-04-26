@@ -1,7 +1,7 @@
 <script setup>
 import draggable from 'vuedraggable'
 import { generateId } from './utils'
-import {componentConfigMap } from './componentMap'
+import { componentConfigMap } from './componentMap'
 
 defineOptions({
   name: 'MaterialSection',

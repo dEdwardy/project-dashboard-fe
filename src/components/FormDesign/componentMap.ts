@@ -1,7 +1,6 @@
 import {
   ElCascader as Cascader,
   ElCheckboxGroup as CheckboxGroup,
-  ElCol as Col,
   ElColorPicker as ColorPicker,
   ElDatePicker as DatePicker,
   ElRadio,
@@ -9,7 +8,6 @@ import {
   ElInputNumber as InputNumber,
   ElRadioGroup as RadioGroup,
   ElRate as Rate,
-  ElRow as Row,
   ElSelect as Select,
   ElSlider as Slider,
   ElSwitch as Switch,
