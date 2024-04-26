@@ -7,7 +7,7 @@ import { formConfigSymbol, setCurrentSymbol, setFormItemPropsSymbol, setFormProp
 
 const formConfig = reactive<FormConfig>({
   formProps: {
-    align: 'right',
+    labelPosition: 'right',
     labelWidth: 100,
     size: 'small',
   },

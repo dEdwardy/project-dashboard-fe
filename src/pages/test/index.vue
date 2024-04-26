@@ -4,7 +4,7 @@ import A from './A.vue'
 
 const b = {
   model: reactive({ a: true }),
-  show: ({ data }) => data.a === true,
+  show: ({ data }:any) => data.a === true,
 }
 function change() {
   b.model.a = !b.model.a

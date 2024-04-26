@@ -143,7 +143,7 @@ function renderSchemaItem({ type, label, key, component, componentProps, show, r
     return (
       <DefaultLayout>
         {{
-          default: () => [formData.value[key].map((_: any, index: number) => components({ index })), buttonContent],
+          default: () => [formData.value[key!].map((_: any, index: number) => components({ index })), buttonContent],
           label: () => label,
         }}
       </DefaultLayout>
