@@ -1,4 +1,4 @@
-import type { Component } from 'vue'
+import type { Component, Slots } from 'vue'
 import type { ComponentString } from './ComponentMaps'
 
 export type FormItemType = 'list' | 'group'
@@ -27,6 +27,7 @@ export interface IFormItem {
   key?: string // 对应表单提交key
   format?: IFormatFn // TODO 表单组件数据结构调整
   component?: Component | ComponentString
+  slots?: Slots
   componentProps?: Record<string, any>
   rules?: Get<any[], ICallWithArgs>
   required?: Get<boolean, ICallWithArgs>

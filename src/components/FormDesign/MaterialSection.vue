@@ -36,13 +36,15 @@ function handleClick(element) {
 function handleClone(item) {
   const id = generateId()
   const key = `${item.key}-${id}`
+  console.log(item)
   return {
     ...item,
     label: item.name,
     id, // 用于渲染
     key, // 用于form提交
     active: false,
-    props: {
+    component:item.key,
+    componentProps: {
       key,
       ...Object.fromEntries(
         Object.entries(componentConfigMap[item.key].model ?? {}).map(([k, v]) => [

@@ -3,7 +3,6 @@ import {
   ElCheckboxGroup as CheckboxGroup,
   ElColorPicker as ColorPicker,
   ElDatePicker as DatePicker,
-  ElRadio,
   ElInput as Input,
   ElInputNumber as InputNumber,
   ElRadioGroup as RadioGroup,
@@ -11,11 +10,11 @@ import {
   ElSelect as Select,
   ElSlider as Slider,
   ElSwitch as Switch,
-  ElInput as Textarea,
   ElTimePicker as TimePicker,
   ElUpload as Upload,
 } from 'element-plus'
 import type { Component } from 'vue'
+import { ElTextArea as Textarea } from '../DynamicForm/ComponentMaps'
 import type { IFormItem } from '../DynamicForm/types'
 
 interface ComponentMap {
@@ -308,14 +307,6 @@ export const formConfigMap: PropsConfig = {
         type: 'button',
         options: ['left', 'right', 'top'],
       },
-      children: ['left', 'right', 'top'].map(i => ({
-        component: ElRadio,
-        componentProps: {
-          label: i,
-          value: i,
-          key: i,
-        },
-      })),
     },
     { label: 'labelWidth', key: 'labelWidth', component: InputNumber },
     {
@@ -324,16 +315,8 @@ export const formConfigMap: PropsConfig = {
       component: RadioGroup,
       componentProps: {
         type: 'button',
-        options: ['mini', 'small', 'medium', 'large'],
+        options: ['large', 'default', 'small'],
       },
-      children: ['large', 'default', 'small'].map(i => ({
-        component: ElRadio,
-        componentProps: {
-          label: i,
-          value: i,
-          key: i,
-        },
-      })),
     },
   ],
 }

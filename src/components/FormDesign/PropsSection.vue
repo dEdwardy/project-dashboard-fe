@@ -88,14 +88,13 @@ const schema = computed(() => {
   const type = current.value!.key.split('-').shift()
   const formItems: any
     = componentConfigMap[type as keyof typeof componentConfigMap].schema
-  console.log(formItems)
   const id = generateId()
   const key = {
     label: 'Key',
     key: 'key',
     id,
     component: 'input',
-    props: {
+    componentProps: {
       id,
     },
   }
@@ -117,7 +116,7 @@ function PropsSectionApp() {
       <Tabs default-active-key="1">
         <TabPane label="字段属性" key="0" lazy>
           {current.value?.id
-            ? <DynamicForm key={current.value?.id} model={local!.formItemProps![currentIndex.value!]?.props} schema={schema.value as IFormItem[]}></DynamicForm>
+            ? <DynamicForm key={current.value?.id} model={local!.formItemProps![currentIndex.value!]?.componentProps} schema={schema.value as IFormItem[]}></DynamicForm>
             : undefined}
         </TabPane>
         <TabPane label="表单属性" key="1" lazy>
