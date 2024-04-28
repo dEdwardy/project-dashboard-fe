@@ -1,3 +1,7 @@
+import type { ComponentString, ComponentValue } from './ComponentMaps'
+import { ComponentMaps } from './ComponentMaps'
+import type { IFormItem } from './types'
+
 // to test
 export function set(obj: any, path: string | string[], val: any) {
   let pathArray = []
@@ -105,4 +109,41 @@ export function cloneDeep(source: any, map = new WeakMap()) {
       target[key] = cloneDeep(source[key], map)
   }
   return target
+}
+
+export function isComponent(cmp: ComponentValue, value: ComponentString) {
+  return value === cmp || cmp === ComponentMaps[value]
+}
+export function handleDefaultSlot(item: IFormItem) {
+  if ((isComponent(item.component, 'radio')) && item?.componentProps?.options && !item.children) {
+    const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
+    console.error('options', options)
+    item.children = options.map(({ label, value }: any) => ({
+      component: 'radio-option',
+      componentProps: {
+        value,
+      },
+      slots: {
+        default: () => label ?? value,
+      },
+    }))
+  }
+  if ((isComponent(item.component, 'select')) && item?.componentProps?.options && !item.children) {
+    const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
+    item.children = options.map(({ label, value }: any) => ({
+      component: 'select-option',
+      componentProps: {
+        value,
+      },
+      slots: {
+        default: () => label ?? value,
+      },
+    }))
+  }
+  return item.children?.map(child => renderChildNodes(child))
+}
+// for radio-group radio select option
+export function renderChildNodes({ component, slots, componentProps }: Pick<IFormItem, 'component' | 'componentProps' | 'slots'>) {
+  const Cmp: any = typeof component === 'string' ? ComponentMaps[component] : component
+  return h(Cmp, componentProps, slots)
 }

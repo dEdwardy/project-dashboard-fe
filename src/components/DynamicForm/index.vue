@@ -1,10 +1,11 @@
 <script lang="tsx" setup>
-import { ElOption, ElRadio, ElRadioGroup, ElSelect, ElForm as Form, ElFormItem as FormItem } from 'element-plus'
+import { ElForm as Form, ElFormItem as FormItem } from 'element-plus'
 import { get, omit, set } from 'lodash'
 import type { WatchStopHandle } from 'vue'
 import type { IFormItem, IFormProps } from './types'
 import DefaultLayout from './DefaultLayout.vue'
 import { ComponentMaps } from './ComponentMaps'
+import { handleDefaultSlot } from './utils'
 
 defineOptions({
   name: 'DynamicForm',
@@ -15,8 +16,8 @@ const slots = useSlots()
 const formData = ref<Record<string, any>>(props.model ?? {})
 watch(formData, (v: unknown) => {
   emits('update:model', v)
-},{
-  deep:true
+}, {
+  deep: true
 })
 const schema = shallowRef(props.schema)
 const formRef = ref<InstanceType<typeof Form> | undefined>()
@@ -57,39 +58,39 @@ defineExpose({
 onUnmounted(() => {
   stopWatch.length && stopWatch.forEach(stop => stop())
 })
-function handleDefaultSlot (item: IFormItem) {
-  if (item.component === ElRadioGroup && item?.componentProps?.options && !item.children) {
-    const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
-    item.children = options.map(({ label, value }: any) => ({
-      component: ElRadio,
-      componentProps: {
-        value
-      },
-      slots: {
-        default: () => label
-      }
-    }))
+// export function handleDefaultSlot (item: IFormItem) {
+//   if (item.component === ElRadioGroup && item?.componentProps?.options && !item.children) {
+//     const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
+//     item.children = options.map(({ label, value }: any) => ({
+//       component: ElRadio,
+//       componentProps: {
+//         value
+//       },
+//       slots: {
+//         default: () => label
+//       }
+//     }))
 
-  }
-  if (item.component === ElSelect && item?.componentProps?.options && !item.children) {
-    const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
-    item.children = options.map(({ label, value }: any) => ({
-      component: ElOption,
-      componentProps: {
-        value
-      },
-      slots: {
-        default: () => label
-      }
-    }))
+//   }
+//   if (item.component === ElSelect && item?.componentProps?.options && !item.children) {
+//     const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
+//     item.children = options.map(({ label, value }: any) => ({
+//       component: ElOption,
+//       componentProps: {
+//         value
+//       },
+//       slots: {
+//         default: () => label
+//       }
+//     }))
 
-  }
-  return item.children?.map(child => renderChildNodes(child))
-}
+//   }
+//   return item.children?.map(child => renderChildNodes(child))
+// }
 function renderSchema () {
   return schema.value.map((child: IFormItem) => renderSchemaItem(child))
 }
-function renderFormItem ({ label, key = '', component, componentProps,slots, show, rules, required, children, dependencies, max }: IFormItem) {
+function renderFormItem ({ label, key = '', component, componentProps, slots, show, rules, required, children, dependencies, max }: IFormItem) {
   if (!component) {
     console.warn('基础组件需要 component')
     return
@@ -141,11 +142,7 @@ function renderFormItem ({ label, key = '', component, componentProps,slots, sho
     </FormItem>
   )
 }
-// for radio-group radio select option
-function renderChildNodes ({ component, slots, componentProps }: Pick<IFormItem, 'component' | 'componentProps' | 'slots'>) {
-  const Cmp: any = typeof component === 'string' ? ComponentMaps[component] : component
-  return h(Cmp,componentProps,slots)
-}
+
 function renderSchemaItem ({ type, label, key, component, componentProps, show, rules, required, children, dependencies, max }: IFormItem) {
   if (type === 'list') {
     if (!children) {
@@ -206,7 +203,7 @@ function renderSchemaItem ({ type, label, key, component, componentProps, show, 
 
 function FormApp () {
   return (
-    <Form ref={formRef} model={props.model} rules={props.rules}>
+    <Form labelWidth={props.labelWidth} ref={formRef} model={props.model} rules={props.rules}>
       {
         renderSchema()
       }

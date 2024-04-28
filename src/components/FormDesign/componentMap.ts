@@ -1,9 +1,3 @@
-import {
-  ElInput as Input,
-  ElInputNumber as InputNumber,
-  ElRadioGroup as RadioGroup,
-  ElSwitch as Switch,
-} from 'element-plus'
 import type { IFormItem } from '../DynamicForm/types'
 
 interface PropsConfig { model: any, schema: IFormItem[] }
@@ -13,29 +7,34 @@ export const componentConfigMap: ConfigForm = {
   input: {
     model: {
       placeholder: undefined,
-      maxLength: undefined,
+      maxlength: undefined,
       showWordLimit: undefined,
       defaultValue: undefined,
     },
     schema: [
-      { label: 'placeholder', key: 'placeholder', component: Input },
-      { label: 'maxLength', key: 'maxLength', component: InputNumber },
-      { label: 'showWordLimit', key: 'showWordLimit', component: Switch },
-      { label: 'defaultValue', key: 'defaultValue', component: Input },
+      { label: 'placeholder', key: 'placeholder', component: 'input' },
+      { label: 'maxlength', key: 'maxlength', component: 'counter' },
+      { label: 'showWordLimit', key: 'showWordLimit', component: 'switch' },
+      { label: 'defaultValue', key: 'defaultValue', component: 'input' },
     ],
   },
+  // TODO 调整DynaicForm DefaultLayout slot? cmp? props?
   textarea: {
     model: {
       placeholder: undefined,
-      maxLength: undefined,
+      maxlength: undefined,
       showWordLimit: undefined,
       defaultValue: undefined,
+      autosize: undefined,
+      rows: undefined,
     },
     schema: [
-      { label: 'placeholder', key: 'placeholder', component: Input },
-      { label: 'maxLength', key: 'maxLength', component: InputNumber },
-      { label: 'showWordLimit', key: 'showWordLimit', component: Switch },
-      { label: 'defaultValue', key: 'defaultValue', component: Input },
+      { label: 'placeholder', key: 'placeholder', component: 'input' },
+      { label: 'maxlength', key: 'maxlength', component: 'counter' },
+      { label: 'showWordLimit', key: 'showWordLimit', component: 'switch' },
+      { label: 'defaultValue', key: 'defaultValue', component: 'input' },
+      { label: 'autosize', key: 'autosize', component: 'switch' },
+      { label: 'rows', key: 'rows', component: 'counter' },
     ],
   },
   counter: {
@@ -45,31 +44,50 @@ export const componentConfigMap: ConfigForm = {
       max: undefined,
       step: undefined,
       defaultValue: undefined,
+      precision: undefined,
+      controls: true,
+      style: {
+        width: undefined,
+        height: undefined,
+      },
     },
     schema: [
-      { label: 'placeholder', key: 'placeholder', component: Input },
-      { label: 'max', key: 'max', component: InputNumber, componentProps: { mode: 'button' } },
-      { label: 'min', key: 'min', component: InputNumber, componentProps: { mode: 'button' } },
-      { label: 'step', key: 'step', component: InputNumber, componentProps: { mode: 'button' } },
-      { label: 'disabled', key: 'disabled', component: Switch },
-      { label: 'defaultValue', key: 'defaultValue', component: Input },
+      { label: 'placeholder', key: 'placeholder', component: 'input' },
+      { label: 'max', key: 'max', component: 'counter', componentProps: { mode: 'button' } },
+      { label: 'min', key: 'min', component: 'counter', componentProps: { mode: 'button' } },
+      { label: 'step', key: 'step', component: 'counter', componentProps: { mode: 'button' } },
+      { label: 'precision', key: 'step', component: 'counter', componentProps: { mode: 'button' } },
+      { label: 'controls', key: 'controls', component: 'switch' },
+      { label: 'disabled', key: 'disabled', component: 'switch' },
+      { label: 'width', key: 'style.width', component: 'input' },
+      { label: 'defaultValue', key: 'defaultValue', component: 'input' },
     ],
   },
   radio: {
     model: {
       direction: undefined,
-      options: [],
+      showLabel: false,
+      options: ['Options1', 'Options2', 'Options3'].map(value => ({ label: value, value })),
     },
     schema: [
       {
         label: 'direction',
         key: 'direction',
-        component: Switch,
+        component: 'switch',
         componentProps: {
           checkedValue: 'horizontal',
           checkedText: 'horizontal',
           uncheckedValue: 'vertical',
           uncheckedText: 'vertical',
+        },
+      },
+      {
+        label: 'showLabel',
+        key: 'showLabel',
+        component: 'switch',
+        componentProps: {
+          checkedValue: true,
+          uncheckedValue: false,
         },
       },
       {
@@ -80,12 +98,13 @@ export const componentConfigMap: ConfigForm = {
           {
             label: 'label',
             key: 'label',
-            component: Input,
+            show: ({ data }) => data.showLabel === true,
+            component: 'input',
           },
           {
             label: 'value',
             key: 'value',
-            component: Input,
+            component: 'input',
           },
         ],
       },
@@ -100,7 +119,7 @@ export const componentConfigMap: ConfigForm = {
       {
         label: 'direction',
         key: 'direction',
-        component: Switch,
+        component: 'switch',
         componentProps: {
           checkedValue: 'horizontal',
           checkedText: 'horizontal',
@@ -116,12 +135,12 @@ export const componentConfigMap: ConfigForm = {
           {
             label: 'label',
             key: 'label',
-            component: Input,
+            component: 'input',
           },
           {
             label: 'value',
             key: 'value',
-            component: Input,
+            component: 'input',
           },
         ],
       },
@@ -137,7 +156,7 @@ export const componentConfigMap: ConfigForm = {
       {
         label: '是否范围选择',
         key: 'type',
-        component: Switch,
+        component: 'switch',
         componentProps: {
           checkedValue: 'time-range',
           uncheckedValue: 'time',
@@ -146,7 +165,7 @@ export const componentConfigMap: ConfigForm = {
       {
         label: '占位内容',
         key: 'placeholder',
-        component: Input,
+        component: 'input',
         show: ({ data }) => {
           return data?.type === 'time'
         },
@@ -155,18 +174,18 @@ export const componentConfigMap: ConfigForm = {
       {
         label: '占位内容开始',
         key: 'placeholder.0',
-        component: Input,
+        component: 'input',
         show: ({ data }) => data?.type !== 'time',
         dependencies: ['type'],
       },
       {
         label: '占位内容结束',
         key: 'placeholder.1',
-        component: Input,
+        component: 'input',
         show: ({ data }) => data?.type !== 'time',
         dependencies: ['type'],
       },
-      { label: 'defaultValue', key: 'defaultValue', component: Input },
+      { label: 'defaultValue', key: 'defaultValue', component: 'input' },
     ],
   },
   datepicker: {
@@ -196,7 +215,7 @@ export const componentConfigMap: ConfigForm = {
   select: {
     model: {
       options: [],
-      maxLength: undefined,
+      maxlength: undefined,
       showWordLimit: undefined,
       defaultValue: undefined,
     },
@@ -209,12 +228,12 @@ export const componentConfigMap: ConfigForm = {
           {
             label: 'label',
             key: 'label',
-            component: Input,
+            component: 'input',
           },
           {
             label: 'value',
             key: 'value',
-            component: Input,
+            component: 'input',
           },
         ],
       },
@@ -268,20 +287,21 @@ export const formConfigMap: PropsConfig = {
     {
       label: 'labelPosition',
       key: 'labelPosition',
-      component: RadioGroup,
+      component: 'radio',
       componentProps: {
         type: 'button',
-        options: ['left', 'right', 'top'],
+        laytout: 'inline',
+        options: ['left', 'right', 'top'].map(value => ({ label: value, value })),
       },
     },
-    { label: 'labelWidth', key: 'labelWidth', component: InputNumber },
+    { label: 'labelWidth', key: 'labelWidth', component: 'input' },
     {
       label: 'size',
       key: 'size',
-      component: RadioGroup,
+      component: 'radio',
       componentProps: {
         type: 'button',
-        options: ['large', 'default', 'small'],
+        options: ['large', 'default', 'small'].map(value => ({ label: value, value })),
       },
     },
   ],

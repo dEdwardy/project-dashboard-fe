@@ -134,8 +134,8 @@ const formItemModels = computed({
       label,
       key
     }
-    const newList:any = formConfig?.formItemProps?.map( (item,index) => {
-      if(index === currentIndex.value)return local
+    const newList: any = formConfig?.formItemProps?.map((item, index) => {
+      if (index === currentIndex.value) return local
       return item
     })
     setFormItemProps!(newList)
@@ -143,15 +143,15 @@ const formItemModels = computed({
 })
 function PropsSectionApp () {
   return (
-    <div>
-      <Tabs default-active-key="1">
-        <TabPane label="字段属性" key="0" lazy>
+    <div class="props-section">
+      <Tabs default-active-key="" type="card" >
+        <TabPane label="字段属性" class="h-500px overflow-auto" key="0" lazy>
           {current.value?.id
-            ? <DynamicForm key={current.value?.id} model={formItemModels.value} onUpdate:model={ v => formItemModels.value =v}  schema={schema.value as IFormItem[]}></DynamicForm>
-            : undefined}
+            ? <DynamicForm key={current.value?.id} model={formItemModels.value} onUpdate:model={v => formItemModels.value = v} schema={schema.value as IFormItem[]}></DynamicForm>
+            : <div class="mt-120px text-#a8abb2 text-16px">请添加字段</div>}
         </TabPane>
-        <TabPane label="表单属性" key="1" lazy>
-          <DynamicForm model={local!.formProps} schema={formConfigMap.schema}></DynamicForm>
+        <TabPane label="表单属性" class="h-500px overflow-auto" key="1" lazy>
+          <DynamicForm labelWidth={90} model={local!.formProps} schema={formConfigMap.schema}></DynamicForm>
         </TabPane>
       </Tabs>
     </div>
@@ -162,3 +162,16 @@ function PropsSectionApp () {
 <template>
   <PropsSectionApp />
 </template>
+
+<style lang="scss">
+.props-section {
+  .el-tabs__nav.is-top {
+    display: flex !important;
+    width: 100%;
+  }
+
+  .el-tabs__item {
+    flex: 1 !important;
+  }
+}
+</style>

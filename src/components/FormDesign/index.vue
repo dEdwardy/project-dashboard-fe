@@ -28,7 +28,11 @@ const previewModelStr = computed(
   () => js(JSON.stringify(previewData.model.value, (_, v) => {
     if (v === undefined) return String(v)
     return v
-  }), { jslint_happy: true, })
+  }), {
+    jslint_happy: true,
+    wrap_line_length: 20,
+    max_preserve_newlines: 20
+  })
 )
 function setFormProps (data: any) {
   formConfig.formProps = data
@@ -64,7 +68,9 @@ function handleExport () {
     if (v === undefined) return String(v)
     return v
   }), {
-    jslint_happy: true
+    jslint_happy: true,
+    wrap_line_length: 20,
+    max_preserve_newlines: 20
   })
 }
 function getFormConfigs () {

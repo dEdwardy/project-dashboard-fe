@@ -13,9 +13,8 @@ export interface IFormProps {
   schema: DynamicFormSchema
   model: any
   rules?: any
+  labelWidth?: number
   submitHidden?: boolean
-  labelColProps?: any
-  wrapperColProps?: any
   disabled?: boolean
   size?: 'mini' | 'small' | 'medium' | 'large'
 }
@@ -44,3 +43,29 @@ interface ICallWithArgs {
 }
 type Fn<T, P = any> = (args: P) => T
 type Get<T, P = any> = T | Fn<T, P>
+
+enum Layout {
+  BLOCK = 'block',
+  INLINE = 'inline',
+}
+export interface RadioProps {
+  modelValue: any
+  options: Options[]
+  layout?: Layout
+}
+export interface Options {
+  label: any
+  value: any
+}
+export interface SelectProps {
+  modelValue: any
+  options: Options[]
+  multiple?: boolean
+  clearable?: boolean
+  filterable?: boolean
+  filterMethod?: Function
+}
+export interface CheckboxGroupProps {
+  modelValue: any[]
+  options: Options[]
+}
