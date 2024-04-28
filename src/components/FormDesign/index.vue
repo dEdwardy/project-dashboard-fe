@@ -21,9 +21,15 @@ const formConfig = reactive<FormConfig>({
   formItemProps: [],
 })
 const previewData = {
-  model: reactive({}),
+  model: ref(),
   schema: shallowRef<any>([])
 }
+const previewModelStr = computed(
+  () => js(JSON.stringify(previewData.model.value, (_, v) => {
+    if (v === undefined) return String(v)
+    return v
+  }), { jslint_happy: true, })
+)
 function setFormProps (data: any) {
   formConfig.formProps = data
 }
@@ -46,14 +52,11 @@ function handlePreview () {
   showDialog.value = true
   const { model, schema } = getFormConfigs()
   previewData.schema.value = schema
-  previewData.model = model
+  previewData.model.value = model
 }
 function handleExport () {
   showeExport.value = true
   const { model, schema } = getFormConfigs()
-  console.log('model', model)
-  // configStr.model = JSON.stringify(model)
-  // configStr.schema = JSON.stringify(schema)
   configStr.value = js(JSON.stringify({
     model: model,
     schema
@@ -65,9 +68,9 @@ function handleExport () {
   })
 }
 function getFormConfigs () {
-  const schema = formConfig.formItemProps?.map(({ name, active,id, ...others }) => ({ ...others }))
+  const schema = formConfig.formItemProps?.map(({ name, active, id, ...others }) => ({ ...others }))
   const models = formConfig.formItemProps?.reduce((initial: any, current: any) => {
-    initial[`${current.componentProps.key}`] = current.componentProps.defaultValue
+    initial[`${current.key}`] = current.componentProps.defaultValue
     return initial
   }, {})
   const model = cloneDeep(models)
@@ -94,8 +97,15 @@ function FormDesignApp () {
           <PropsSection></PropsSection>
         </div>
       </div>
-      <ElDialog v-model={showDialog.value}>
-        <DynamicForm model={previewData.model} schema={previewData.schema.value} />
+      <ElDialog v-model={showDialog.value} destroy-on-close>
+        <div>
+          <DynamicForm model={previewData.model.value} schema={previewData.schema.value} />
+          <highlightjs
+            style={'text-align:left'}
+            language="js"
+            code={previewModelStr.value}
+          />
+        </div>
       </ElDialog>
       <ElDialog v-model={showeExport.value}>
         <highlightjs

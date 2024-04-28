@@ -85,20 +85,27 @@ watch(currentIndex, () => {
 const schema = computed(() => {
   if (!current.value)
     return []
-  const type = current.value!.key.split('-').shift()
+  const type = current.value!.type
   const formItems: any
     = componentConfigMap[type as keyof typeof componentConfigMap].schema
-  const id = generateId()
-  const key = {
+  const keyId = generateId()
+  const labelId = generateId()
+  const keyItem = {
     label: 'Key',
     key: 'key',
-    id,
+    id: keyId,
     component: 'input',
     componentProps: {
-      id,
+      id: keyId,
     },
   }
-  return [key, ...formItems]
+  const labelItem = {
+    label: 'label',
+    key: 'label',
+    id: labelId,
+    component: 'input'
+  }
+  return [keyItem, labelItem, ...formItems]
 })
 watch(() => local.formProps, (v) => {
   setFormProps!(v)
@@ -110,13 +117,37 @@ watch(() => local.formItemProps, (v) => {
 }, {
   deep: true,
 })
-function PropsSectionApp() {
+const formItemModels = computed({
+  get () {
+    return {
+      ...local!.formItemProps![currentIndex.value!]?.componentProps,
+      label: current.value?.label,
+      key: current.value?.key,
+    }
+  },
+  set (v: any) {
+    console.log('触发set')
+    const { label, key, ...props } = v
+    const local = {
+      ...current.value,
+      componentProps: props,
+      label,
+      key
+    }
+    const newList:any = formConfig?.formItemProps?.map( (item,index) => {
+      if(index === currentIndex.value)return local
+      return item
+    })
+    setFormItemProps!(newList)
+  }
+})
+function PropsSectionApp () {
   return (
     <div>
       <Tabs default-active-key="1">
         <TabPane label="字段属性" key="0" lazy>
           {current.value?.id
-            ? <DynamicForm key={current.value?.id} model={local!.formItemProps![currentIndex.value!]?.componentProps} schema={schema.value as IFormItem[]}></DynamicForm>
+            ? <DynamicForm key={current.value?.id} model={formItemModels.value} onUpdate:model={ v => formItemModels.value =v}  schema={schema.value as IFormItem[]}></DynamicForm>
             : undefined}
         </TabPane>
         <TabPane label="表单属性" key="1" lazy>

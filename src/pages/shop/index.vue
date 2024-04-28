@@ -12,24 +12,25 @@ const formRef = ref<InstanceType<typeof DynamicForm>>()
 const props: DynamicFormProps = {
   schema: [
     { label: '输入1', component: 'input', key: 'a', show: ({ data }) => data.b == '1' },
-    {
-      label: '输入2xxxxx',
-      key: 'b',
-      required: true,
-      component: 'select',
-      componentProps: {
-        options: ['1', '2', '3'],
-      },
-      children: ['a', 'c'].map(k => ({
-        key: k,
-        component: 'option',
-        componentProps: {
-          label: k,
-          value: k,
-          key: k,
-        },
-      })),
-    },
+    // {
+    //   label: '输入2xxxxx',
+    //   key: 'b',
+    //   required: true,
+    //   component: 'select',
+    //   componentProps: {
+    //     options: ['1', '2', '3'],
+    //   },
+    //   children: ['a', 'c'].map(k => ({
+    //     label:'',
+    //     key: k,
+    //     component: 'option',
+    //     componentProps: {
+    //       label: k,
+    //       value: k,
+    //       key: k,
+    //     },
+    //   })),
+    // },
     {
       label: 'Group1',
       key: 'c',

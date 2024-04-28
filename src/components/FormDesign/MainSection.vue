@@ -1,8 +1,9 @@
 <script setup lang="jsx">
 import Draggable from 'vuedraggable'
 import { ElForm as Form, ElFormItem as FormItem } from 'element-plus'
-import { componentConfigMap, componentMap } from './componentMap'
+import { componentConfigMap } from './componentMap'
 import { formConfigSymbol, setCurrentSymbol, setFormItemPropsSymbol } from './utils'
+import { ComponentMaps } from '../DynamicForm/ComponentMaps';
 
 defineOptions({
   name: 'MainSection',
@@ -45,7 +46,7 @@ function handleRemove (index) {
 function MainSectionApp () {
   const renderComponent = (type, componentProps) => {
     const { key, ...props } = componentProps
-    return h(componentMap[type], {
+    return h(ComponentMaps[type], {
       ...props,
       disabled: true,
       style: {
@@ -75,18 +76,18 @@ function MainSectionApp () {
           item: ({ element, index }) => {
             const disabled = element.active !== true
             const activeClass = disabled
-              ? 'border-1px border-transparent outline-2px outline-transparent outline-solid'
-              : 'border-1px border-blue outline-2px outline-blue  outline-solid'
-            const type = element.key.split('-').shift()
+              ? 'border-2px border-transparent outline-2px outline-transparent'
+              : 'border-2px border-blue outline-2px outline-blue  outline-solid'
+            const type = element.type
             const defaultProps
               = element.componentProps ?? componentConfigMap[type]?.model ?? {}
             const currentFormItem = formConfig.formItemProps[index] ?? {}
-            const { id, componentProps: currentProps } = currentFormItem
-            const { key, ...addedProps } = currentProps
+            const { id,label,key, componentProps: currentProps } = currentFormItem
+            const { label:_l,key:_k, ...addedProps } = currentProps
             return (
-              <div class={[activeClass, 'hover:cursor-pointer', 'p-1', 'overflow-hidden']}>
+              <div class={[activeClass, 'hover:cursor-pointer', 'p-1', 'overflow-hidden', 'relative']}>
                 <FormItem
-                  label={element.name}
+                  label={label}
                   disabled={disabled}
                   onClick={() => handleSelect(index)}
                 >
@@ -99,11 +100,15 @@ function MainSectionApp () {
                     })
                   }
                 </FormItem>
-                <div v-show={element.active} class="flex justify-end items-center gap-2">
-                  <span class="handle i-carbon:move float-right  hover:bg-blue"
-                    onClick={() => handleRemove(index)} />
-                  <span class="i-carbon:trash-can float-right  hover:bg-red"
-                    onClick={() => handleRemove(index)} />
+                <div v-show={element.active} class="flex justify-end items-end absolute bottom-0 right-0">
+                  <div class="inline-flex bg-blue opacity-60 p-6px hover:opacity-100">
+                    <i class="handle i-carbon:move bg-white"
+                      onClick={() => handleRemove(index)} />
+                  </div>
+                  <div class="inline-flex bg-blue opacity-60 p-6px hover:opacity-100">
+                    <i class="i-carbon:trash-can bg-white "
+                      onClick={() => handleRemove(index)} />
+                  </div>
                 </div>
               </div>
             )
@@ -129,7 +134,7 @@ function MainSectionApp () {
   opacity: 0.5;
 }
 </style>
-<style lang="scss" >
+<style lang="scss">
 .form {
   [disabled] {
     cursor: initial !important;

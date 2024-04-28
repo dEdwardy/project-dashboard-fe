@@ -1,45 +1,11 @@
 import {
-  ElCascader as Cascader,
-  ElCheckboxGroup as CheckboxGroup,
-  ElColorPicker as ColorPicker,
-  ElDatePicker as DatePicker,
   ElInput as Input,
   ElInputNumber as InputNumber,
   ElRadioGroup as RadioGroup,
-  ElRate as Rate,
-  ElSelect as Select,
-  ElSlider as Slider,
   ElSwitch as Switch,
-  ElTimePicker as TimePicker,
-  ElUpload as Upload,
 } from 'element-plus'
-import type { Component } from 'vue'
-import { ElTextArea as Textarea } from '../DynamicForm/ComponentMaps'
 import type { IFormItem } from '../DynamicForm/types'
 
-interface ComponentMap {
-  [key: string]: Component | string
-}
-export const componentMap: ComponentMap = {
-  input: Input,
-  textarea: Textarea,
-  counter: InputNumber,
-  radio: RadioGroup,
-  checkbox: CheckboxGroup,
-  timepicker: TimePicker,
-  datepicker: DatePicker,
-  rate: Rate,
-  colorpicker: ColorPicker,
-  select: Select,
-  switch: Switch,
-  slider: Slider,
-  text: 'text',
-  customarea: 'customarea',
-  uploader: Upload,
-  editor: 'editor',
-  cascader: Cascader,
-  grid: 'Grid',
-}
 interface PropsConfig { model: any, schema: IFormItem[] }
 type ConfigForm = Record<string, PropsConfig>
 // 表单组件相关配置

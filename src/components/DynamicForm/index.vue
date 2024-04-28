@@ -15,6 +15,8 @@ const slots = useSlots()
 const formData = ref<Record<string, any>>(props.model ?? {})
 watch(formData, (v: unknown) => {
   emits('update:model', v)
+},{
+  deep:true
 })
 const schema = shallowRef(props.schema)
 const formRef = ref<InstanceType<typeof Form> | undefined>()
