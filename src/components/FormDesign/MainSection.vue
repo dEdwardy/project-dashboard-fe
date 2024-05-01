@@ -1,131 +1,138 @@
-<script setup lang="jsx">
+<script setup lang="tsx">
 import Draggable from 'vuedraggable'
 import { ElForm as Form, ElFormItem as FormItem } from 'element-plus'
+import { get, set } from 'lodash'
 import { componentConfigMap } from './componentMap'
-import { formConfigSymbol, setCurrentSymbol, setFormItemPropsSymbol } from './utils'
-import { ComponentMaps } from '~/components/DynamicForm/ComponentMaps';
-import { handleDefaultSlot } from '~/components/DynamicForm/utils'
+import { useFormConfigStore } from './store'
+import { ComponentMaps } from '~/components/DynamicForm/ComponentMaps'
 
 defineOptions({
   name: 'MainSection',
 })
-const list = ref([])
+const store = useFormConfigStore()
 const formModel = reactive({})
-const current = ref()
-const formConfig = inject(formConfigSymbol)
-const setFormItemsProps = inject(setFormItemPropsSymbol)
-const setCurrent = inject(setCurrentSymbol)
-watch(list, () => {
-  console.log('list change')
-  const len = list.value.length
-  list.value.forEach((item, index) => {
-    if (index === len - 1)
-      item.active = true
-    else
-      if (item.active)
-        item.active = false
-  })
-  current.value = len - 1
-  // set added active
-  setFormItemsProps(list.value)
-  setCurrent(len - 1)
+const list = computed({
+  get() {
+    return store.itemsConifg
+  },
+  set(v: any[]) {
+    console.error('store.setItemsConifg(v)', v)
+    store.setItemsConifg(v)
+    store.setCurrentIndex(v.length - 1)
+  },
 })
-function handleSelect (index) {
-  const len = list.value.length
-  const oldIndex = list.value.findIndex(item => item.active === true)
-  list.value.splice(oldIndex, 1, { ...list.value[oldIndex], active: false })
-  list.value.splice(index, 1, { ...list.value[index], active: true })
-  current.value = index
-  setCurrent(index)
+
+function handleSelect(index: number) {
+  store.setCurrentIndex(index)
 }
-function handleRemove (index) {
+function handleMove(evt: any) {
+  const { from, to } = evt
+  const isMoveInLocalList = (from.parentNode).contains(to)
+  return isMoveInLocalList
+}
+function handleRemove(index: number) {
   list.value.splice(index, 1)
-  setFormItemsProps(list.value)
-  if (list.value[index - 1]) setCurrent(index - 1)
-  else setCurrent(-1)
+  store.setCurrentIndex(0)
 }
-// {{
-//           default: () => handleDefaultSlot({ component, componentProps, children }),
-//         }}
-function MainSectionApp () {
-  const renderComponent = (type, componentProps,children) => {
+function handleEnd({ newDraggableIndex }: { newDraggableIndex: number }) {
+  store.setCurrentIndex(newDraggableIndex)
+}
+function MainSectionApp() {
+  const renderComponent = (type: keyof typeof ComponentMaps, componentProps: any) => {
     const { key, ...props } = componentProps
-    // return h(ComponentMaps[type], {
-    //   ...props,
-    //   disabled: true,
-    //   style: {
-    //     cursor: 'initail !important'
-    //   }
-    // })
     const Component = ComponentMaps[type]
-    // return <Component { ...props }></Component>
-    return <Component {...props} disabled={true} style="cursor: initail !important">
-      {{
-        default: () => handleDefaultSlot({ component:Component, componentProps, children }),
-      }}
-    </Component >
+    const extractNullValue = Object.keys(props ?? {}).reduce((inital: any, current) => {
+      const val = props?.[current]
+      if (val !== undefined && val !== null && val !== '')
+        inital[current] = val
+      return inital
+    }, {}) ?? {}
+
+    const { defaultValue, ...othersProps } = extractNullValue
+    if (defaultValue !== void 0)
+      set(formModel, key, defaultValue)
+    return (
+      <Component
+        {...othersProps}
+        disabled={false}
+        style="cursor: initail !important"
+        modelValue={get(formModel, key)}
+        onUpdate:modelValue={(v: any) => {
+          set(formModel, key, v)
+        }}
+      >
+      </Component>
+    )
   }
-return (
-  <Form
-    class="form px-4 py-3"
-    model={formModel}
-    disabled={false}
-    labelPosition={formConfig?.formProps?.labelPosition}
-    labelWidth={formConfig?.formProps?.labelWidth}
-  >
-    <Draggable
-      class="dragArea list-group h-100% p-4"
-      ghost-class="ghost"
-      v-model={list.value}
-      group="material"
-      handle=".handle"
-      item-key="id"
+  return (
+    <Form
+      class="form px-4 py-3"
+      model={formModel}
+      disabled={false}
+      labelPosition={store.configModel.labelPosition}
+      labelWidth={store.configModel.labelWidth ?? 'auto'}
     >
-      {{
-        item: ({ element, index }) => {
-          const disabled = element.active !== true
-          const activeClass = disabled
-            ? 'border-2px border-transparent outline-2px outline-transparent'
-            : 'border-2px border-blue outline-2px outline-blue  outline-solid'
-          const type = element.type
-          const defaultProps
-            = element.componentProps ?? componentConfigMap[type]?.model ?? {}
-          const currentFormItem = formConfig.formItemProps[index] ?? {}
-          const { id, label, key, componentProps: currentProps } = currentFormItem
-          const { label: _l, key: _k, ...addedProps } = currentProps
-          return (
-            <div class={[activeClass, 'hover:cursor-pointer', 'p-1', 'overflow-hidden', 'relative']}>
-              <FormItem
-                label={label}
-                disabled={disabled}
-                onClick={() => handleSelect(index)}
-              >
-                {
-                  renderComponent(type, {
-                    key: id,
-                    size: formConfig.formProps.size,
-                    ...defaultProps,
-                    ...addedProps,
-                  },element.children)
-                }
-              </FormItem>
-              <div v-show={element.active} class="flex justify-end items-end absolute bottom-0 right-0">
-                <div class="inline-flex bg-blue opacity-60 p-6px hover:opacity-100">
-                  <i class="handle i-carbon:move bg-white"
-                    onClick={() => handleRemove(index)} />
-                </div>
-                <div class="inline-flex bg-blue opacity-60 p-6px hover:opacity-100">
-                  <i class="i-carbon:trash-can bg-white "
-                    onClick={() => handleRemove(index)} />
+      <Draggable
+        class="dragArea undraggable list-group h-100%"
+        ghost-class="ghost"
+        v-model={list.value}
+        // @ts-ignore
+        group="material"
+        handle=".handle"
+        item-key="id"
+        move={handleMove}
+        onEnd={handleEnd}
+      >
+        {{
+          item: ({ element, index }: { element: any, index: number }) => {
+            const disabled = store.currentIndex !== index
+            const activeClass = disabled
+              ? 'border-2px border-transparent outline-2px outline-transparent'
+              : 'border-2px border-blue outline-2px outline-blue  outline-solid'
+            const type = element.type
+            const defaultProps
+              = element.componentProps ?? componentConfigMap[type]?.model ?? {}
+            const currentFormItem = store.itemsConifg[index] ?? {}
+            const { id, label: _l, key: _k, componentProps: currentProps } = currentFormItem
+            const { label, key, ...addedProps } = currentProps ?? {}
+            return (
+              <div class={[activeClass, 'hover:cursor-pointer', 'p-1', 'overflow-hidden', 'relative']}>
+                <FormItem
+                  label={element.componentProps.label}
+                  labelWidth={store.configModel?.labelWidth ?? 'auto'}
+                  // @ts-expect-error
+                  onClick={() => handleSelect(index)}
+                >
+                  {
+                    renderComponent(type, {
+                      key: id,
+                      size: store.configModel.size,
+                      ...defaultProps,
+                      ...addedProps,
+                    })
+                  }
+                </FormItem>
+                <div v-show={!disabled} class="absolute bottom-0 right-0 flex items-end justify-end">
+                  <div
+                    class="inline-flex bg-blue p-6px opacity-60 hover:opacity-100"
+                    onClick={() => handleRemove(index)}
+                  >
+                    <i class="handle i-carbon:move bg-white" />
+                  </div>
+                  <div
+                    class="inline-flex bg-blue p-6px opacity-60 hover:opacity-100"
+                    onClick={() => handleRemove(index)}
+                  >
+                    <i class="i-carbon:trash-can bg-white" />
+                  </div>
                 </div>
               </div>
-            </div>
-          )
-        },
-      }}
-    </Draggable>
-  </Form>
-)
+            )
+          },
+        }}
+      </Draggable>
+    </Form>
+  )
 }
 </script>
 
@@ -136,13 +143,13 @@ return (
 <style lang="scss" scoped>
 .form {
   height: 100% !important;
-
 }
 
 .ghost {
   opacity: 0.5;
 }
 </style>
+
 <style lang="scss">
 .form {
   [disabled] {

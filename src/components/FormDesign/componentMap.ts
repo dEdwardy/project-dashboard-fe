@@ -3,7 +3,7 @@ import type { IFormItem } from '../DynamicForm/types'
 interface PropsConfig { model: any, schema: IFormItem[] }
 type ConfigForm = Record<string, PropsConfig>
 // 表单组件相关配置
-export const componentConfigMap: ConfigForm = {
+export const componentConfigMap: ConfigForm = reactive({
   input: {
     model: {
       placeholder: undefined,
@@ -18,7 +18,6 @@ export const componentConfigMap: ConfigForm = {
       { label: 'defaultValue', key: 'defaultValue', component: 'input' },
     ],
   },
-  // TODO 调整DynaicForm DefaultLayout slot? cmp? props?
   textarea: {
     model: {
       placeholder: undefined,
@@ -60,45 +59,35 @@ export const componentConfigMap: ConfigForm = {
       { label: 'controls', key: 'controls', component: 'switch' },
       { label: 'disabled', key: 'disabled', component: 'switch' },
       { label: 'width', key: 'style.width', component: 'input' },
-      { label: 'defaultValue', key: 'defaultValue', component: 'input' },
+      { label: 'defaultValue', key: 'defaultValue', component: 'counter' },
     ],
   },
   radio: {
     model: {
-      direction: undefined,
-      showLabel: false,
+      layout: undefined,
       options: ['Options1', 'Options2', 'Options3'].map(value => ({ label: value, value })),
     },
     schema: [
       {
-        label: 'direction',
-        key: 'direction',
+        label: 'layout',
+        key: 'layout',
         component: 'switch',
         componentProps: {
-          checkedValue: 'horizontal',
-          checkedText: 'horizontal',
-          uncheckedValue: 'vertical',
-          uncheckedText: 'vertical',
-        },
-      },
-      {
-        label: 'showLabel',
-        key: 'showLabel',
-        component: 'switch',
-        componentProps: {
-          checkedValue: true,
-          uncheckedValue: false,
+          activeValue: 'block',
+          activeText: 'block',
+          inactiveValue: 'inline',
+          inactiveText: 'inline',
         },
       },
       {
         label: 'options',
         key: 'options',
         type: 'list',
+        // defaultValue: ,
         children: [
           {
             label: 'label',
             key: 'label',
-            show: ({ data }) => data.showLabel === true,
             component: 'input',
           },
           {
@@ -112,25 +101,27 @@ export const componentConfigMap: ConfigForm = {
   },
   checkbox: {
     model: {
-      direction: undefined,
-      options: [],
+      layout: undefined,
+      options: undefined,
+      defaultValue: [],
     },
     schema: [
       {
-        label: 'direction',
-        key: 'direction',
+        label: 'layout',
+        key: 'layout',
         component: 'switch',
         componentProps: {
-          checkedValue: 'horizontal',
-          checkedText: 'horizontal',
-          uncheckedValue: 'vertical',
-          uncheckedText: 'vertical',
+          activeValue: 'block',
+          activeText: 'block',
+          inactiveValue: 'inline',
+          inactiveText: 'inline',
         },
       },
       {
         label: 'options',
         key: 'options',
         type: 'list',
+        defaultValue: ['Options1', 'Options2', 'Options3'].map(value => ({ label: value, value })),
         children: [
           {
             label: 'label',
@@ -146,46 +137,47 @@ export const componentConfigMap: ConfigForm = {
       },
     ],
   },
+  // TODO MainSection render wrong
   timepicker: {
     model: {
-      type: 'time',
       placeholder: undefined,
-      // defaultValue: undefined,
+      startPlaceholder: undefined,
+      endPlaceholder: undefined,
+      isRange: false,
+      arrowControl: false,
     },
     schema: [
       {
-        label: '是否范围选择',
-        key: 'type',
+        label: 'isRange',
+        key: 'isRange',
         component: 'switch',
-        componentProps: {
-          checkedValue: 'time-range',
-          uncheckedValue: 'time',
-        },
+      },
+      {
+        label: 'arrowControl',
+        key: 'arrowControl',
+        component: 'switch',
       },
       {
         label: '占位内容',
         key: 'placeholder',
         component: 'input',
         show: ({ data }) => {
-          return data?.type === 'time'
+          return data?.isRange !== true
         },
-        dependencies: ['type'],
       },
       {
         label: '占位内容开始',
-        key: 'placeholder.0',
+        key: 'startPlaceholder',
         component: 'input',
-        show: ({ data }) => data?.type !== 'time',
-        dependencies: ['type'],
+        show: ({ data }) => data.isRange === true,
       },
       {
         label: '占位内容结束',
-        key: 'placeholder.1',
+        key: 'endPlaceholder',
         component: 'input',
-        show: ({ data }) => data?.type !== 'time',
+        show: ({ data }) => data.isRange === true,
         dependencies: ['type'],
       },
-      { label: 'defaultValue', key: 'defaultValue', component: 'input' },
     ],
   },
   datepicker: {
@@ -194,34 +186,104 @@ export const componentConfigMap: ConfigForm = {
     },
     schema: [
       {
-        label: '显示类型',
+        label: 'format',
+        key: 'format',
+        component: 'input',
+      },
+      {
+        label: 'type',
         key: 'type',
         component: 'select',
         componentProps: {
-          options: ['date', 'month', 'year', 'quarter', 'week']
+          options: ['year', 'years', 'month', 'date', 'dates', 'datetime', 'week', 'datetimerange', 'daterange', 'monthrange'].map(value => ({ label: value, value }))
           ,
         },
+      },
+      {
+        label: 'placeholder',
+        key: 'placeholder',
+        show: ({ data }: any) => !data?.type.includes('range'),
+        component: 'input',
+      },
+      {
+        label: 'startPlaceholder',
+        key: 'startPlaceholder',
+        show: ({ data }: any) => data?.type.includes('range'),
+        component: 'input',
+      },
+      {
+        label: 'endPlaceholder',
+        key: 'endPlaceholder',
+        show: ({ data }: any) => data?.type.includes('range'),
+        component: 'input',
       },
     ],
   },
   rate: {
-    model: {},
-    schema: [],
-  },
-  colorpicker: {
-    model: {},
-    schema: [],
-  },
-  select: {
     model: {
-      options: [],
-      maxlength: undefined,
-      showWordLimit: undefined,
-      defaultValue: undefined,
+      max: 5,
+      allowHalf: false,
+      showScore: false,
     },
     schema: [
       {
-        label: 'Options',
+        label: 'max',
+        key: 'max',
+        component: 'counter',
+      },
+      {
+        label: 'allowHalf',
+        key: 'allowHalf',
+        component: 'switch',
+      },
+      {
+        label: 'showScore',
+        key: 'showScore',
+        component: 'switch',
+      },
+    ],
+  },
+  colorpicker: {
+    model: {},
+    schema: [
+      {
+        label: 'showAlpha',
+        key: 'showAlpha',
+        component: 'switch',
+      },
+      {
+        label: 'defaultValue',
+        key: 'defaultValue',
+        component: 'colorpicker',
+      },
+    ],
+  },
+  select: {
+    model: {
+      // options: ['Options1', 'Options2', 'Options3'].map(value => ({ label: value, value })),
+      options: [{ label: 'Options1', value: 'Options1' }, { label: 'Options2', value: 'Options2' }, { label: 'Options3', value: 'Options3' }],
+      defaultValue: undefined,
+      filterable: true,
+      multiple: false,
+    },
+    schema: [
+      {
+        label: 'placeholder',
+        key: 'placeholder',
+        component: 'input',
+      },
+      {
+        label: 'filterable',
+        key: 'filterable',
+        component: 'switch',
+      },
+      {
+        label: 'multiple',
+        key: 'multiple',
+        component: 'switch',
+      },
+      {
+        label: 'options',
         type: 'list',
         key: 'options',
         children: [
@@ -240,32 +302,92 @@ export const componentConfigMap: ConfigForm = {
     ],
   },
   switch: {
-    model: {},
-    schema: [],
+    model: {
+    },
+    schema: [
+    ],
   },
   slider: {
-    model: {},
-    schema: [],
+    model: {
+      min: 0,
+      max: 100,
+      step: 1,
+    },
+    schema: [
+      {
+        label: 'min',
+        key: 'min',
+        component: 'counter',
+      },
+      {
+        label: 'max',
+        key: 'max',
+        component: 'counter',
+      },
+      {
+        label: 'step',
+        key: 'step',
+        component: 'counter',
+      },
+    ],
   },
   text: {
-    model: {},
-    schema: [],
+    model: {
+    },
+    schema: [
+      {
+        label: 'defaultValue',
+        key: 'defaultValue',
+        component: 'input',
+      },
+    ],
   },
   customarea: {
     model: {},
     schema: [],
   },
   uploader: {
-    model: {},
-    schema: [],
+    model: {
+      action: '#',
+      defaultValue: [],
+    },
+    schema: [
+      {
+        label: 'width',
+        key: 'width',
+        component: 'counter',
+      },
+      {
+        label: 'height',
+        key: 'height',
+        component: 'counter',
+      },
+      {
+        label: 'action',
+        key: 'action',
+        component: 'input',
+      },
+    ],
   },
   editor: {
-    model: {},
+    model: {
+    },
     schema: [],
   },
   cascader: {
-    model: {},
-    schema: [],
+    model: {
+      options: [],
+    },
+    schema: [
+      {
+        label: 'options',
+        key: 'options',
+        component: 'json',
+        componentProps: {
+          editable: true,
+        },
+      },
+    ],
   },
   row: {
     model: {},
@@ -275,7 +397,7 @@ export const componentConfigMap: ConfigForm = {
     model: {},
     schema: [],
   },
-}
+})
 // 整体表单相关配置
 export const formConfigMap: PropsConfig = {
   model: {
@@ -294,7 +416,7 @@ export const formConfigMap: PropsConfig = {
         options: ['left', 'right', 'top'].map(value => ({ label: value, value })),
       },
     },
-    { label: 'labelWidth', key: 'labelWidth', component: 'input' },
+    { label: 'labelWidth', key: 'labelWidth', component: 'counter' },
     {
       label: 'size',
       key: 'size',

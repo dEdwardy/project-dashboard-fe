@@ -30,23 +30,24 @@ const materials = {
   ],
   layout: [{ name: '栅格布局', key: 'layout' }],
 }
-function handleClick (element) {
+function handleClick(element) {
   console.log(element)
 }
-function handleClone (item) {
+function handleClone(item) {
   const id = generateId()
   const key = `${item.key}-${id}`
   return {
     ...item,
     label: item.name,
-    type:item.key,
-    id,  //  用于渲染
+    type: item.key,
+    id, //  用于渲染
     key, // 用于form提交
-    active: false,
     component: item.key,
     componentProps: {
-      key,
+      // key,
       label: item.name,
+      key,
+      id,
       ...Object.fromEntries(
         Object.entries(componentConfigMap[item.key].model ?? {}).map(([k, v]) => [
           k,
@@ -61,13 +62,19 @@ function handleClone (item) {
 <template>
   <div class="flex flex-col">
     <div v-for="(item, index) of Object.keys(materials)" :key="index" class="flex-1">
-      <draggable tag="div" :list="materials[item]" ghost-class="ghost" :group="{ name: 'material', pull: 'clone' }"
-        class="grid-template grid gap-1 p-3" item-key="id" :sort="false" :clone="handleClone">
+      <draggable
+        tag="div" :list="materials[item]" ghost-class="ghost" :group="{ name: 'material', pull: 'clone' }
+        " class="grid-template grid gap-1 p-3" item-key="id" filter=".undraggable" :sort="false" :clone="handleClone"
+      >
         <template #item="{ element }">
-          <div hover-border="dashed blue"
-            class="h-30px w-90px flex cursor-pointer items-center justify-center border-1px bg-#f4f6fc text-14px"
-            @click="() => handleClick(element)">
-            {{ element.name }}
+          <div
+            hover-border="dashed blue"
+            class="h-30px flex cursor-pointer items-center justify-center border-1px bg-#f4f6fc text-12px"
+            :title="element.name" @click="() => handleClick(element)"
+          >
+            <div class="w-70px overflow-hidden text-ellipsis whitespace-nowrap px-5px">
+              {{ element.name }}
+            </div>
           </div>
         </template>
       </draggable>

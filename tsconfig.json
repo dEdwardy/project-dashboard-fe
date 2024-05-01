@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2016",
+    "target": "ES2015",
     "jsx": "preserve",
     "jsxImportSource": "vue",
     "lib": ["DOM", "ESNext"],

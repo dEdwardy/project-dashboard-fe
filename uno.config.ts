@@ -19,7 +19,7 @@ export default defineConfig({
   ],
   theme: {
     gridTemplateColumn: {
-      sp: 'minmax(300px,340px) minmax(600px,1fr) minmax(450px,560px)',
+      sp: 'minmax(220px,260px) minmax(600px,1fr) minmax(300px,420px)',
     },
   },
   presets: [

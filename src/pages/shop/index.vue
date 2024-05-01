@@ -128,15 +128,17 @@ const list: Array<{ id: number, content: string }> = Array.from({ length: 100 })
           <div>
             <DynamicForm ref="formRef" v-model:model="props.model" :schema="props.schema" />
             <div>
-              <button @click="handleSubmit">
-                提交
-              </button>
-              <button @click="handleReset">
-                Reset
-              </button>
-              <button @click="handleClearValidate">
-                清除验证
-              </button>
+              <div>
+                <button @click="handleSubmit">
+                  提交
+                </button>
+                <button @click="handleReset">
+                  Reset
+                </button>
+                <button @click="handleClearValidate">
+                  清除验证
+                </button>
+              </div>
             </div>
           </div>
         </a-tab-pane>

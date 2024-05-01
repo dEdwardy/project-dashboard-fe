@@ -5,7 +5,7 @@ const routes = ref(['shop', 'vip', 'okr'])
 <template>
   <main
     font-sans
-    p="x-10 y-10"
+    p="10"
     text="center gray-700 dark:gray-200"
     class="h-100%"
   >
@@ -29,6 +29,6 @@ const routes = ref(['shop', 'vip', 'okr'])
   color: red;
 }
 .main {
-  height: calc(100% - 30px);
+  height: calc(100% - 50px);
 }
 </style>

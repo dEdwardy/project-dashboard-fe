@@ -17,14 +17,14 @@ const formData = ref<Record<string, any>>(props.model ?? {})
 watch(formData, (v: unknown) => {
   emits('update:model', v)
 }, {
-  deep: true
+  deep: true,
 })
-const schema = shallowRef(props.schema)
+const schema = ref(props.schema)
 const formRef = ref<InstanceType<typeof Form> | undefined>()
 const dependenciesRef = ref<Set<string>>(new Set())
 const stopWatch: WatchStopHandle[] = []
 const hiddenKeys: Ref<Set<string>> = ref(new Set())
-function handleValidate () {
+function handleValidate() {
   return new Promise((resolve, reject) => {
     formRef.value?.validate((valid, err) => {
       if (!valid) {
@@ -58,39 +58,14 @@ defineExpose({
 onUnmounted(() => {
   stopWatch.length && stopWatch.forEach(stop => stop())
 })
-// export function handleDefaultSlot (item: IFormItem) {
-//   if (item.component === ElRadioGroup && item?.componentProps?.options && !item.children) {
-//     const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
-//     item.children = options.map(({ label, value }: any) => ({
-//       component: ElRadio,
-//       componentProps: {
-//         value
-//       },
-//       slots: {
-//         default: () => label
-//       }
-//     }))
-
-//   }
-//   if (item.component === ElSelect && item?.componentProps?.options && !item.children) {
-//     const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
-//     item.children = options.map(({ label, value }: any) => ({
-//       component: ElOption,
-//       componentProps: {
-//         value
-//       },
-//       slots: {
-//         default: () => label
-//       }
-//     }))
-
-//   }
-//   return item.children?.map(child => renderChildNodes(child))
-// }
-function renderSchema () {
+function renderSchema() {
   return schema.value.map((child: IFormItem) => renderSchemaItem(child))
 }
-function renderFormItem ({ label, key = '', component, componentProps, slots, show, rules, required, children, dependencies, max }: IFormItem) {
+function setDefaultValue({ defaultValue, key }: IFormItem) {
+  if (defaultValue && key && get(formData.value, key) === undefined)
+    set(formData.value, key, defaultValue)
+}
+function renderFormItem({ label, key = '', component, componentProps, defaultValue, show, rules, required, children, dependencies, max }: IFormItem) {
   if (!component) {
     console.warn('基础组件需要 component')
     return
@@ -123,6 +98,7 @@ function renderFormItem ({ label, key = '', component, componentProps, slots, sh
   }
   if (key)
     hiddenKeys.value.delete(key)
+  setDefaultValue({ key, defaultValue })
   return (
     <FormItem label={label} prop={key} required={realRequried} rules={realRules}>
       <component
@@ -143,12 +119,14 @@ function renderFormItem ({ label, key = '', component, componentProps, slots, sh
   )
 }
 
-function renderSchemaItem ({ type, label, key, component, componentProps, show, rules, required, children, dependencies, max }: IFormItem) {
+function renderSchemaItem({ type, label, key, component, componentProps, defaultValue, show, rules, required, children, dependencies, max, layout }: IFormItem) {
+  const Layout = layout || props.layout || DefaultLayout
   if (type === 'list') {
     if (!children) {
       console.warn('list must have children')
       return <></>
     }
+    setDefaultValue({ key, defaultValue })
     const listValue = props.model[key as keyof typeof props.model]
     if (!Array.isArray(listValue)) {
       console.warn('list initial value must be array')
@@ -160,22 +138,37 @@ function renderSchemaItem ({ type, label, key, component, componentProps, show, 
     }, {})
     const handleAdd = (e: MouseEvent) => {
       e.preventDefault()
-      formData.value[key!].push(getListItemDefault())
+      // let temp = formData.value[key!]
+      // set(formData.value,key!,[...temp,getListItemDefault()])
+      formData.value[key!] = [...formData.value[key!], getListItemDefault()]
+      console.error(formData.value[key!])
+      // console.log(key,formData.value[key!], get(formData.value,key!))
     }
     const len = formData.value[key!].length
-    const buttonContent = (max && max <= len) ? undefined : <button onClick={handleAdd}>添加</button>
+    const buttonContent = (max && max <= len) ? undefined : <button class="btn" onClick={handleAdd}>添加</button>
+    const handleDelete = ({ key, index }: { key: string, index: number }): void => {
+      const listData = get(formData.value, key) as unknown as any[]
+      listData.splice(index, 1)
+      // const newArr = listData.filter((_, idx) => idx !== index)
+      // set(formData.value, key, newArr)
+    }
+    const renderDeleteButton = ({ key, index }: { key: string, index: number }) => {
+      return <span class="cursor-pointer" onClick={() => handleDelete({ key, index })}>delete</span>
+    }
     const components = ({ index }: { index: number }) => {
       // children key 拼接
-      return children.map(child => renderSchemaItem({ ...child, key: `${key}.${index}.${child.key}` }))
+      return h('div', null, [
+        ...children.map(child => renderSchemaItem({ ...child, key: `${key}.${index}.${child.key}` })),
+        renderDeleteButton({ key, index } as any),
+      ])
     }
-
     return (
-      <DefaultLayout>
+      <Layout>
         {{
           default: () => [formData.value[key!].map((_: any, index: number) => components({ index })), buttonContent],
           label: () => label,
         }}
-      </DefaultLayout>
+      </Layout>
     )
   }
   else if (type === 'group') {
@@ -183,27 +176,36 @@ function renderSchemaItem ({ type, label, key, component, componentProps, show, 
       console.warn('group must have children')
       return <></>
     }
+    setDefaultValue({ key, defaultValue })
     // children key 拼接
     return (
-      <DefaultLayout>
+      <Layout>
         {{
           default: () => children.map(
             child => renderSchemaItem({ ...child, key: key ? `${key}.${child.key}` : child.key }),
           ),
           label: () => label,
         }}
-      </DefaultLayout>
+      </Layout>
     )
   }
   else {
     const node = computed(() => renderFormItem({ label, key, component, componentProps, children, show, rules, required, dependencies }))
-    return node.value ? <DefaultLayout>{node.value}</DefaultLayout> : undefined
+    return node.value ? <Layout>{node.value}</Layout> : undefined
   }
 }
 
-function FormApp () {
+function FormApp() {
   return (
-    <Form labelWidth={props.labelWidth} ref={formRef} model={props.model} rules={props.rules}>
+    <Form
+      labelWidth={props.labelWidth}
+      labelPosition={props.labelPosition}
+      ref={formRef}
+      model={props.model}
+      rules={props.rules}
+      inline={props.inline}
+      showMessage={props.showMessage}
+    >
       {
         renderSchema()
       }

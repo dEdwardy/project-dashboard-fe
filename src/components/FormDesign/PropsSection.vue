@@ -3,155 +3,86 @@ import {
   ElTabPane as TabPane,
   ElTabs as Tabs,
 } from 'element-plus'
-import { cloneDeep } from 'lodash'
-import type { IFormItem } from '../DynamicForm/types'
-import type { FormConfig } from './utils'
-import { formConfigSymbol, generateId, setFormItemPropsSymbol, setFormPropsSymbol } from './utils'
-import { componentConfigMap, formConfigMap } from './componentMap'
+import { componentConfigMap } from './componentMap'
+import CustomLayout from './CustomLayout.vue'
+import { useFormConfigStore } from './store'
 import DynamicForm from '~/components/DynamicForm/index.vue'
 
 defineOptions({
   name: 'PropsSection',
 })
-const formConfig = inject(formConfigSymbol)
-const setFormProps = inject(setFormPropsSymbol)
-const setFormItemProps = inject(setFormItemPropsSymbol)
-const current = computed(() => formConfig?.formItemProps?.find(item => item.active === true))
-const currentIndex = computed(() => formConfig?.formItemProps?.findIndex(item => item.active === true))
-// const model = reactive({
-//   formProps: {
-//     align: 'right',
-//     labelWidth: 100,
-//     size: 'small',
-//   },
-//   formItemProps: {
-//     id: undefined,
-//   },
-// })
-// watch(
-//   () => formConfig!.formItemProps,
-//   () => {
-//     currentIndex.value = formConfig!.formItemProps!.findIndex(
-//       i => i.active === true,
-//     )
-//     const res: any = formConfig!.formItemProps![currentIndex.value]
-//     if (!model.formItemProps.id && res)
-//       model.formItemProps = { id: res.id, ...res.props }
-//     current.value = res
-//   },
-//   {
-//     deep: true,
-//   },
-// )
-// watch(current, (v: any) => {
-//   console.error('current', v)
-//   const { id, props } = v
-//   model.formItemProps = { id, ...props }
-// },{
-//   deep:true
-// })
-// 修改当前项目 formItemConfig
-// watch(
-//   () => model.formItemProps,
-//   (v: any) => {
-//     nextTick(() => {
-//       console.log('修改当前项 配置')
-//       const { id, ...props } = v
-//       formConfig!.formItemProps![currentIndex.value!].props = props
-//     })
-//   },
-//   {
-//     deep: true,
-//   },
-// )
-// 修改formConfig
-// watch(
-//   () => model.formProps,
-//   (v: any) => {
-//     formConfig!.formProps = v
-//   },
-//   {
-//     deep: true
-//   }
-// )
-const local = reactive<Partial<FormConfig>>({
-  formProps: undefined,
-  formItemProps: [],
+const currentTab = ref('1')
+const formStore = useFormConfigStore()
+const formItemModels = computed({
+  get() {
+    const res = formStore.itemsConifg[formStore.currentIndex]?.componentProps ?? {}
+    console.error('get formItemModels', res)
+    return reactive(res)
+  },
+  set(v) {
+    formStore.setCurrentProps(v)
+  },
 })
-local.formProps = cloneDeep(formConfig?.formProps)
-watch(currentIndex, () => {
-  local.formItemProps = cloneDeep(formConfig?.formItemProps)
+const formConfigModels = computed({
+  get() {
+    // return formConfig?.formProps ?? {}
+    return formStore.configModel ?? {}
+  },
+  set(v) {
+    // setFormProps!(v)
+    formStore.setConfigModel(v)
+  },
 })
-const schema = computed(() => {
-  if (!current.value)
-    return []
-  const type = current.value!.type
-  const formItems: any
-    = componentConfigMap[type as keyof typeof componentConfigMap].schema
-  const keyId = generateId()
-  const labelId = generateId()
-  const keyItem = {
+const defaultItems = [
+  {
     label: 'Key',
     key: 'key',
-    id: keyId,
     component: 'input',
-    componentProps: {
-      id: keyId,
-    },
-  }
-  const labelItem = {
+  },
+  {
     label: 'label',
     key: 'label',
-    id: labelId,
-    component: 'input'
-  }
-  return [keyItem, labelItem, ...formItems]
-})
-watch(() => local.formProps, (v) => {
-  setFormProps!(v)
-}, {
-  deep: true,
-})
-watch(() => local.formItemProps, (v) => {
-  setFormItemProps!(v)
-}, {
-  deep: true,
-})
-const formItemModels = computed({
-  get () {
-    return {
-      ...local!.formItemProps![currentIndex.value!]?.componentProps,
-      label: current.value?.label,
-      key: current.value?.key,
-    }
+    component: 'input',
   },
-  set (v: any) {
-    console.log('触发set')
-    const { label, key, ...props } = v
-    const local = {
-      ...current.value,
-      componentProps: props,
-      label,
-      key
-    }
-    const newList: any = formConfig?.formItemProps?.map((item, index) => {
-      if (index === currentIndex.value) return local
-      return item
-    })
-    setFormItemProps!(newList)
-  }
+]
+// 字段配置
+const formItemConfigSchema = computed(() => {
+  if (!formStore.itemsConifg[formStore.currentIndex])
+    return []
+  const { schema } = componentConfigMap[formStore.itemsConifg[formStore.currentIndex].type]
+  return [...defaultItems, ...schema]
 })
-function PropsSectionApp () {
+function PropsSectionApp() {
   return (
+  // v-model:model={formItemModels.value}
     <div class="props-section">
-      <Tabs default-active-key="" type="card" >
-        <TabPane label="字段属性" class="h-500px overflow-auto" key="0" lazy>
-          {current.value?.id
-            ? <DynamicForm key={current.value?.id} model={formItemModels.value} onUpdate:model={v => formItemModels.value = v} schema={schema.value as IFormItem[]}></DynamicForm>
-            : <div class="mt-120px text-#a8abb2 text-16px">请添加字段</div>}
+      <Tabs v-model={currentTab.value} type="card">
+        <TabPane label="字段属性" class="h-500px overflow-auto" name="0">
+          { formStore.currentConfig.id
+            ? (
+              <DynamicForm
+                labelPosition="top"
+                label-width={(currentTab.value && formStore.currentConfig.id) === '0' ? 'auto' : '100px'}
+                key={formStore.currentConfig.id}
+                model={formItemModels.value}
+                v-model:model={formItemModels.value}
+                schema={formItemConfigSchema.value as any}
+                layout={CustomLayout}
+                showMessage={false}
+              />
+              )
+            : <div class="mt-120px text-16px text-#a8abb2">请添加字段</div>}
         </TabPane>
-        <TabPane label="表单属性" class="h-500px overflow-auto" key="1" lazy>
-          <DynamicForm labelWidth={90} model={local!.formProps} schema={formConfigMap.schema}></DynamicForm>
+        <TabPane label="表单属性" class="h-500px overflow-auto" name="1" lazy>
+          <DynamicForm
+            labelPosition="top"
+            label-width={currentTab.value === '1' ? 'auto' : '100px'}
+            model={formConfigModels.value}
+            v-model:model={formConfigModels.value}
+            schema={formStore.config as any}
+            layout={CustomLayout}
+            showMessage={false}
+          />
         </TabPane>
       </Tabs>
     </div>
@@ -172,6 +103,10 @@ function PropsSectionApp () {
 
   .el-tabs__item {
     flex: 1 !important;
+  }
+
+  .el-form-item {
+    margin-bottom: unset;
   }
 }
 </style>

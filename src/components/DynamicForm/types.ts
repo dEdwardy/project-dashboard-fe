@@ -13,20 +13,26 @@ export interface IFormProps {
   schema: DynamicFormSchema
   model: any
   rules?: any
-  labelWidth?: number
+  labelWidth?: number | string | undefined
+  labelPosition?: 'top' | 'left' | 'right'
   submitHidden?: boolean
   disabled?: boolean
   size?: 'mini' | 'small' | 'medium' | 'large'
+  layout?: any // 布局组件
+  inline?: boolean
+  showMessage?: boolean
 }
 type IFormatFn = ({ data }: { data: Record<string, any> }) => any
 export interface IFormItem {
   label?: string
-  labelWidth?: string | number
+  labelWidth?: number | string | undefined
   labelPosition?: string
   key?: string // 对应表单提交key
+  defaultValue?: any //  modelValue 不存在时的默认值
   format?: IFormatFn // TODO 表单组件数据结构调整
   component?: Component | ComponentString
-  slots?: Slots
+  slots?: Slots //  TODO 是否需要待定
+  layout?: any // 布局组件
   componentProps?: Record<string, any>
   rules?: Get<any[], ICallWithArgs>
   required?: Get<boolean, ICallWithArgs>
@@ -44,14 +50,10 @@ interface ICallWithArgs {
 type Fn<T, P = any> = (args: P) => T
 type Get<T, P = any> = T | Fn<T, P>
 
-enum Layout {
-  BLOCK = 'block',
-  INLINE = 'inline',
-}
 export interface RadioProps {
   modelValue: any
   options: Options[]
-  layout?: Layout
+  layout?: string
 }
 export interface Options {
   label: any
@@ -68,4 +70,5 @@ export interface SelectProps {
 export interface CheckboxGroupProps {
   modelValue: any[]
   options: Options[]
+  layout?: string
 }

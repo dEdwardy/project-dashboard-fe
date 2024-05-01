@@ -1,90 +1,73 @@
 <script setup lang="tsx">
+import VueJsonPretty from 'vue-json-pretty'
 import { ElButton, ElDialog } from 'element-plus'
-import MainSection from './MainSection.vue'
-import MaterialSection from './MaterialSection.vue'
-import PropsSection from './PropsSection.vue'
-import type { FormConfig } from './utils'
-import { formConfigSymbol, setCurrentSymbol, setFormItemPropsSymbol, setFormPropsSymbol } from './utils'
 import { cloneDeep } from 'lodash'
+import localforage from 'localforage'
+import { useDateFormat } from '@vueuse/core'
+import { nanoid } from 'nanoid'
+import { useRouter } from 'vue-router'
+import type { IFormItem } from '../DynamicForm/types'
+import type { FormConfig } from './utils'
+import PropsSection from './PropsSection.vue'
+import MaterialSection from './MaterialSection.vue'
+import MainSection from './MainSection.vue'
+import { useFormConfigStore } from './store'
 import DynamicForm from '~/components/DynamicForm/index.vue'
-import { js } from 'js-beautify'
 
 const showDialog = ref(false)
 const showeExport = ref(false)
-const configStr = ref('')
-const formConfig = reactive<FormConfig>({
+const configData = reactive<{ model: Record<string, unknown>, schema: IFormItem[] }>({
+  model: {},
+  schema: [],
+})
+// TODO 带重构 使用Pinia 代替
+const formConfig: FormConfig = reactive<FormConfig>({
   formProps: {
     labelPosition: 'right',
-    labelWidth: 100,
+    labelWidth: undefined,
     size: 'small',
   },
   formItemProps: [],
+  formItemModel: {},
 })
 const previewData = {
   model: ref(),
-  schema: shallowRef<any>([])
+  schema: shallowRef<any>([]),
 }
-const previewModelStr = computed(
-  () => js(JSON.stringify(previewData.model.value, (_, v) => {
-    if (v === undefined) return String(v)
-    return v
-  }), {
-    jslint_happy: true,
-    wrap_line_length: 20,
-    max_preserve_newlines: 20
-  })
-)
-function setFormProps (data: any) {
-  formConfig.formProps = data
-}
-function setFormItemProps (data: any) {
-  formConfig.formItemProps = data
-}
-function setCurrent (idx: number) {
-  formConfig.formItemProps?.forEach((item, index) => {
-    if (index === idx && !item.active)
-      item.active = true
-    if (index !== idx && item.active)
-      item.active = false
-  })
-}
-provide(formConfigSymbol, formConfig)
-provide(setFormPropsSymbol, setFormProps)
-provide(setFormItemPropsSymbol, setFormItemProps)
-provide(setCurrentSymbol, setCurrent)
-function handlePreview () {
-  showDialog.value = true
+
+const router = useRouter()
+const formStore = useFormConfigStore()
+async function handlePreview() {
   const { model, schema } = getFormConfigs()
-  previewData.schema.value = schema
-  previewData.model.value = model
+  const time = useDateFormat(new Date(), 'YYYY-MM-DD HH:mm:ss')
+  const id = nanoid()
+  console.log({ id, data: { model, schema, time } })
+  const data = schema?.map(i => ({ ...i, componentProps: i.componentProps }))
+  await localforage.setItem(id, JSON.stringify({ model, schema: data, time: time.value }))
+  router.push(`/form-design/${id}`)
 }
-function handleExport () {
+function handleExport() {
   showeExport.value = true
   const { model, schema } = getFormConfigs()
-  configStr.value = js(JSON.stringify({
-    model: model,
-    schema
-  }, (_, v) => {
-    if (v === undefined) return String(v)
-    return v
-  }), {
-    jslint_happy: true,
-    wrap_line_length: 20,
-    max_preserve_newlines: 20
-  })
+  configData.model = model
+  configData.schema = schema as unknown as IFormItem[]
 }
-function getFormConfigs () {
-  const schema = formConfig.formItemProps?.map(({ name, active, id, ...others }) => ({ ...others }))
-  const models = formConfig.formItemProps?.reduce((initial: any, current: any) => {
-    initial[`${current.key}`] = current.componentProps.defaultValue
+function getFormConfigs() {
+  const schema = formStore.itemsConifg.map(({ label: _l, key: _k, id: _id, type, componentProps, component }: any) => {
+    const { label, key, id: _i, ...props } = componentProps
+    return { label, key, component, componentProps: props }
+  })
+  const models = schema.reduce((initial: any, current: any) => {
+    initial[`${current.key}`] = formConfig.formItemModel?.[current.id] ?? current.componentProps.defaultValue
     return initial
   }, {})
   const model = cloneDeep(models)
   return {
-    model, schema
+    model,
+    schema,
   }
 }
-function FormDesignApp () {
+function FormDesignApp() {
   return (
     <div class="flex flex-col">
       <h3>Form Design</h3>
@@ -104,21 +87,11 @@ function FormDesignApp () {
         </div>
       </div>
       <ElDialog v-model={showDialog.value} destroy-on-close>
-        <div>
-          <DynamicForm model={previewData.model.value} schema={previewData.schema.value} />
-          <highlightjs
-            style={'text-align:left'}
-            language="js"
-            code={previewModelStr.value}
-          />
-        </div>
+        <DynamicForm model={previewData.model.value} schema={previewData.schema.value} />
+        <VueJsonPretty class="p-4" data={previewData.model.value} />
       </ElDialog>
       <ElDialog v-model={showeExport.value}>
-        <highlightjs
-          style={'text-align:left'}
-          language="js"
-          code={configStr.value}
-        />
+        <VueJsonPretty class="h-400px overflow-auto p-4" data={configData} />
       </ElDialog>
     </div>
   )

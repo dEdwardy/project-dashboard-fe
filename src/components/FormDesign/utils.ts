@@ -1,28 +1,25 @@
 import { nanoid } from 'nanoid'
-import type { InjectionKey } from 'vue'
 
 export const generateId = (size: number = 21) => nanoid(size)
-interface FormProps {
+export interface FormProps {
   labelPosition: 'left' | 'right' | 'top'
-  labelWidth: string | number
+  labelWidth?: string | number
   size: 'large' | 'default' | 'small'
 }
-interface FormItemProps {
+export interface FormItemProps {
+  label: string
+  key: string
   id: string
-  props: any
-  [key: string]: any
+  component: string
+  componentProps: any
+  type: string
+  // [key: string]: any
 }
 export interface FormConfig {
   formProps: FormProps
   formItemProps?: FormItemProps[]
+  formItemModel: any
 }
-export const formConfigSymbol: InjectionKey<FormConfig> = Symbol('formConfigSymbol')
-
-export const setFormPropsSymbol: InjectionKey<(data: any) => void> = Symbol('setFormPropsSymbol')
-
-export const setFormItemPropsSymbol: InjectionKey<(data: any) => void> = Symbol('setFormItemPropsSymbol')
-
-export const setCurrentSymbol: InjectionKey<(index: number) => void> = Symbol('setCurrentSymnol')
 
 export function objToFormItemConfigs(map: any) {
   const list = Object.entries(map ?? {}).map(([k, v]: any) => {

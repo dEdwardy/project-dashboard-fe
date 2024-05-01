@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { ElCheckboxGroup, ElCheckbox } from 'element-plus'
+import { ElCheckbox, ElCheckboxGroup } from 'element-plus'
 import { ref } from 'vue'
-import { CheckboxGroupProps } from './types';
+import type { CheckboxGroupProps } from './types'
 
 defineOptions({
-  name: 'CustomSelect'
+  name: 'CustomCheckbox',
 })
 const props = defineProps<CheckboxGroupProps>()
 const emit = defineEmits(['update:modelValue'])
-
-const modelValue = ref(props.modelValue)
-watch(modelValue, v => {
+const layoutStyle = computed(
+  () => props.layout == 'block' ? 'display:flex;flex-direction:column;align-items:flex-start;width:100%' : '',
+)
+const modelValue = ref(props.modelValue ?? [])
+watch(modelValue, (v) => {
   emit('update:modelValue', v)
 })
 </script>
 
 <template>
-  <ElCheckboxGroup v-model="modelValue">
-    <ElCheckbox v-for="(item, index) of props.options" :value="item.value" :key="index">{{ item.label }}</ElCheckbox>
+  <ElCheckboxGroup v-model="modelValue" :style="layoutStyle">
+    <ElCheckbox v-for="(item, index) of props.options" :key="index" :value="item.value">
+      {{ item.label }}
+    </ElCheckbox>
   </ElCheckboxGroup>
 </template>
