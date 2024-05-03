@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ElRadio, ElRadioGroup } from 'element-plus'
-import type { RadioProps } from './types'
+import type { RadioProps } from '../types'
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps<RadioProps>()
 const emits = defineEmits(['update:modelValue'])

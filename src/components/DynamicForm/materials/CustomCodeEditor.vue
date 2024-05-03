@@ -11,6 +11,7 @@ import extInlineAutocomplete from 'ace-builds/src-noconflict/ext-inline_autocomp
 import extBeautify from 'ace-builds/src-noconflict/ext-beautify'
 import extErrorMarker from 'ace-builds/src-noconflict/ext-error_marker'
 import extSettingMenu from 'ace-builds/src-noconflict/ext-settings_menu'
+import { ref, watch } from 'vue'
 
 defineOptions({
   name: 'CustomCodeEditor',

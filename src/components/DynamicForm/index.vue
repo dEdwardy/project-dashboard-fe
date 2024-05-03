@@ -11,7 +11,7 @@ defineOptions({
   name: 'DynamicForm',
 })
 const props = defineProps<IFormProps>()
-const emits = defineEmits(['update:model', 'submit'])
+const emits = defineEmits(['update:model'])
 const slots = useSlots()
 const formData = ref<Record<string, any>>(props.model ?? {})
 watch(formData, (v: unknown) => {
@@ -24,7 +24,7 @@ const formRef = ref<InstanceType<typeof Form> | undefined>()
 const dependenciesRef = ref<Set<string>>(new Set())
 const stopWatch: WatchStopHandle[] = []
 const hiddenKeys: Ref<Set<string>> = ref(new Set())
-function handleValidate() {
+function handleValidate () {
   return new Promise((resolve, reject) => {
     formRef.value?.validate((valid, err) => {
       if (!valid) {
@@ -58,14 +58,14 @@ defineExpose({
 onUnmounted(() => {
   stopWatch.length && stopWatch.forEach(stop => stop())
 })
-function renderSchema() {
+function renderSchema () {
   return schema.value.map((child: IFormItem) => renderSchemaItem(child))
 }
-function setDefaultValue({ defaultValue, key }: IFormItem) {
+function setDefaultValue ({ defaultValue, key }: IFormItem) {
   if (defaultValue && key && get(formData.value, key) === undefined)
     set(formData.value, key, defaultValue)
 }
-function renderFormItem({ label, key = '', component, componentProps, defaultValue, show, rules, required, children, dependencies, max }: IFormItem) {
+function renderFormItem ({ label, key = '', component, componentProps, defaultValue, show, rules, required, children, dependencies, max, slots }: IFormItem) {
   if (!component) {
     console.warn('基础组件需要 component')
     return
@@ -99,6 +99,16 @@ function renderFormItem({ label, key = '', component, componentProps, defaultVal
   if (key)
     hiddenKeys.value.delete(key)
   setDefaultValue({ key, defaultValue })
+  const slotsContent = Object.fromEntries(Object.entries(slots ?? {}).map(([slotKey, schemaArr]) => {
+    const nodes = () => {
+      if(typeof schemaArr === 'string'){
+        return schemaArr
+      }else{
+       return  schemaArr.map((child: IFormItem) => renderSchemaItem(child))
+      }
+    }
+    return [slotKey, nodes]
+  }))
   return (
     <FormItem label={label} prop={key} required={realRequried} rules={realRules}>
       <component
@@ -113,13 +123,14 @@ function renderFormItem({ label, key = '', component, componentProps, defaultVal
       >
         {{
           default: () => handleDefaultSlot({ component, componentProps, children }),
+          ...slotsContent
         }}
       </component>
     </FormItem>
   )
 }
 
-function renderSchemaItem({ type, label, key, component, componentProps, defaultValue, show, rules, required, children, dependencies, max, layout }: IFormItem) {
+function renderSchemaItem ({ type, label, key, component, componentProps, defaultValue, show, rules, required, children, dependencies, max, layout, slots }: IFormItem) {
   const Layout = layout || props.layout || DefaultLayout
   if (type === 'list') {
     if (!children) {
@@ -138,11 +149,8 @@ function renderSchemaItem({ type, label, key, component, componentProps, default
     }, {})
     const handleAdd = (e: MouseEvent) => {
       e.preventDefault()
-      // let temp = formData.value[key!]
-      // set(formData.value,key!,[...temp,getListItemDefault()])
       formData.value[key!] = [...formData.value[key!], getListItemDefault()]
       console.error(formData.value[key!])
-      // console.log(key,formData.value[key!], get(formData.value,key!))
     }
     const len = formData.value[key!].length
     const buttonContent = (max && max <= len) ? undefined : <button class="btn" onClick={handleAdd}>添加</button>
@@ -190,12 +198,12 @@ function renderSchemaItem({ type, label, key, component, componentProps, default
     )
   }
   else {
-    const node = computed(() => renderFormItem({ label, key, component, componentProps, children, show, rules, required, dependencies }))
+    const node = computed(() => renderFormItem({ label, key, component, componentProps, children, show, rules, required, dependencies, slots }))
     return node.value ? <Layout>{node.value}</Layout> : undefined
   }
 }
 
-function FormApp() {
+function FormApp () {
   return (
     <Form
       labelWidth={props.labelWidth}

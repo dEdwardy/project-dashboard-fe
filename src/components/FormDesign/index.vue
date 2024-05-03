@@ -1,6 +1,6 @@
 <script setup lang="tsx">
 import VueJsonPretty from 'vue-json-pretty'
-import { ElButton, ElDialog } from 'element-plus'
+import { ElButton, ElDialog, ElInput } from 'element-plus'
 import { cloneDeep } from 'lodash'
 import localforage from 'localforage'
 import { useDateFormat } from '@vueuse/core'
@@ -10,10 +10,12 @@ import type { IFormItem } from '../DynamicForm/types'
 import type { FormConfig } from './utils'
 import PropsSection from './PropsSection.vue'
 import MaterialSection from './MaterialSection.vue'
-import MainSection from './MainSection.vue'
+// import MainSection from './MainSection.vue'
+import MainSectionV2 from './MainSectionV2.vue'
 import { useFormConfigStore } from './store'
 import DynamicForm from '~/components/DynamicForm/index.vue'
 
+const formName = ref()
 const showDialog = ref(false)
 const showeExport = ref(false)
 const configData = reactive<{ model: Record<string, unknown>, schema: IFormItem[] }>({
@@ -71,16 +73,17 @@ function FormDesignApp() {
   return (
     <div class="flex flex-col">
       <h3>Form Design</h3>
-      <div>
-        <ElButton onClick={handlePreview}>预览</ElButton>
-        <ElButton onClick={handleExport}>导出</ElButton>
+      <div class="px-20">
+        <ElInput placeholder="表单名" v-model={ formName.value }></ElInput>
+        <ElButton disabled={ !formName.value }  onClick={handlePreview}>预览</ElButton>
+        <ElButton  disabled={ !formName.value } onClick={handleExport}>导出</ElButton>
       </div>
       <div class="grid grid-cols-sp my-4 flex-1 gap-4">
         <div class="border-1px border-gray">
           <MaterialSection></MaterialSection>
         </div>
         <div class="h-100% border-1px border-gray">
-          <MainSection></MainSection>
+          <MainSectionV2></MainSectionV2>
         </div>
         <div class="border-1px border-gray">
           <PropsSection></PropsSection>

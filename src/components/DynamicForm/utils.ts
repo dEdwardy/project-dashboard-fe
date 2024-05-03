@@ -117,6 +117,7 @@ export function isComponent(cmp: ComponentValue, value: ComponentString) {
 export function handleDefaultSlot(item: IFormItem) {
   if ((isComponent(item.component, 'radio')) && item?.componentProps?.options && !item.children) {
     const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
+    // @ts-ignore
     item.children = options.map(({ label, value }: any) => ({
       component: 'radio-option',
       componentProps: {
@@ -129,6 +130,7 @@ export function handleDefaultSlot(item: IFormItem) {
   }
   if ((isComponent(item.component, 'select')) && item?.componentProps?.options && !item.children) {
     const options: any[] = typeof item?.componentProps?.options[0] === 'object' ? item?.componentProps?.options : item?.componentProps?.options?.map((value: string) => ({ label: value, value }))
+    // @ts-ignore
     item.children = options.map(({ label, value }: any) => ({
       component: 'select-option',
       componentProps: {

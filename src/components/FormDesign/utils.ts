@@ -13,6 +13,7 @@ export interface FormItemProps {
   component: string
   componentProps: any
   type: string
+  children?: FormItemProps[]
   // [key: string]: any
 }
 export interface FormConfig {
@@ -66,4 +67,16 @@ export function componentToConfig(children: any) {
     }
   })
   return res
+}
+
+export function getCurrentNode(list: FormItemProps[], id: string): FormItemProps | undefined {
+  for (const item of list) {
+    if (item.id === id)
+      return item
+    if (item.children && item.children.length > 0) {
+      const foundItem = getCurrentNode(item.children, id)
+      return foundItem
+    }
+  }
+  return undefined
 }

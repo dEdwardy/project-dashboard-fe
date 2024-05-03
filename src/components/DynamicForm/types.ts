@@ -1,4 +1,4 @@
-import type { Component, Slots } from 'vue'
+import type { Component } from 'vue'
 import type { ComponentString } from './ComponentMaps'
 
 export type FormItemType = 'list' | 'group'
@@ -29,9 +29,9 @@ export interface IFormItem {
   labelPosition?: string
   key?: string // 对应表单提交key
   defaultValue?: any //  modelValue 不存在时的默认值
-  format?: IFormatFn // TODO 表单组件数据结构调整
+  format?: IFormatFn // TODO 表单组件数据结构调整  later 暂时不想考虑 反正做了双向绑定
   component?: Component | ComponentString
-  slots?: Slots //  TODO 是否需要待定
+  slots?: Record<string, IFormItem[] | string> //  TODO
   layout?: any // 布局组件
   componentProps?: Record<string, any>
   rules?: Get<any[], ICallWithArgs>

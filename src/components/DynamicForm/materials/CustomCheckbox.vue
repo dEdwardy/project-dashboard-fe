@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ElCheckbox, ElCheckboxGroup } from 'element-plus'
-import { ref } from 'vue'
-import type { CheckboxGroupProps } from './types'
+import { computed, ref, watch } from 'vue'
+import type { CheckboxGroupProps } from '../types'
 
 defineOptions({
   name: 'CustomCheckbox',

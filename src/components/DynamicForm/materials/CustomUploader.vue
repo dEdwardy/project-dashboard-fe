@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { ElDialog, ElUpload } from 'element-plus'
 import type { UploadUserFile } from 'element-plus'
 

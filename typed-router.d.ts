@@ -22,10 +22,12 @@ declare module 'vue-router/auto-routes' {
     '/[...all]': RouteRecordInfo<'/[...all]', '/:all(.*)', { all: ParamValue<true> }, { all: ParamValue<false> }>,
     '/form-design/': RouteRecordInfo<'/form-design/', '/form-design', Record<never, never>, Record<never, never>>,
     '/form-design/[id]': RouteRecordInfo<'/form-design/[id]', '/form-design/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/form-test/': RouteRecordInfo<'/form-test/', '/form-test', Record<never, never>, Record<never, never>>,
     '/okr/': RouteRecordInfo<'/okr/', '/okr', Record<never, never>, Record<never, never>>,
     '/shop/': RouteRecordInfo<'/shop/', '/shop', Record<never, never>, Record<never, never>>,
     '/test/': RouteRecordInfo<'/test/', '/test', Record<never, never>, Record<never, never>>,
     '/test/A': RouteRecordInfo<'/test/A', '/test/A', Record<never, never>, Record<never, never>>,
+    '/test/drag': RouteRecordInfo<'/test/drag', '/test/drag', Record<never, never>, Record<never, never>>,
     '/vip/': RouteRecordInfo<'/vip/', '/vip', Record<never, never>, Record<never, never>>,
   }
 }

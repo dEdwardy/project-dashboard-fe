@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
-import { onBeforeUnmount, ref, shallowRef } from 'vue'
-// @ts-expect-error
+import { onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+// @ts-ignore
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
 defineOptions({
@@ -10,7 +10,8 @@ defineOptions({
 const props = defineProps<IProps>()
 const emits = defineEmits(['update:modelValue'])
 interface IProps {
-  modelValue: string
+  modelValue: any
+  disabled?:boolean
 }
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef()
@@ -22,7 +23,10 @@ watch(valueHtml, (v) => {
   emits('update:modelValue', v)
 })
 const toolbarConfig = {}
-const editorConfig = { placeholder: '请输入内容...' }
+const editorConfig = reactive({
+  placeholder: '请输入内容...' ,
+  readOnly :props.disabled
+})
 
 // 组件销毁时，也及时销毁编辑器
 onBeforeUnmount(() => {
@@ -41,8 +45,8 @@ function handleCreated(editor: unknown) {
   <div style="border: 1px solid #ccc">
     <Toolbar style="border-bottom: 1px solid #ccc" :editor="editorRef" :default-config="toolbarConfig" :mode="mode" />
     <Editor
-      v-model="valueHtml" style="height: 300px; overflow-y: auto;" :default-config="editorConfig" :mode="mode"
-      @on-created="handleCreated"
+      v-model="valueHtml" style="height: 400px; overflow-y: auto;" :default-config="editorConfig" :mode="mode"
+      @on-created="handleCreated" :readonly="props.disabled"
     />
   </div>
 </template>

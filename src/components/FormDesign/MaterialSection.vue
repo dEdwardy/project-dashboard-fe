@@ -28,15 +28,31 @@ const materials = {
     { name: '编辑器', key: 'editor' },
     { name: '级联选择器', key: 'cascader' },
   ],
-  layout: [{ name: '栅格布局', key: 'layout' }],
+  layout: [
+    {
+      name: 'Layout',
+      key: 'row',
+      min:1, // 至少有1个col
+      children: [
+        {
+          name: 'col',
+          key: 'col',
+          componentProps: {
+            span: 12,
+            offset: 0
+          },
+          // 表单元素在这里
+          children: []
+        }
+      ]
+    },
+    // { name: 'Col', key: 'col' }
+  ],
 }
-function handleClick(element) {
-  console.log(element)
-}
-function handleClone(item) {
+function handleClone (item) {
   const id = generateId()
   const key = `${item.key}-${id}`
-  return {
+  const obj = {
     ...item,
     label: item.name,
     type: item.key,
@@ -54,24 +70,22 @@ function handleClone(item) {
           markRaw(v),
         ]),
       ),
-    },
+    }
   }
+  if (obj.children) obj.children = obj.children.map(item => handleClone(item))
+  return obj
 }
 </script>
 
 <template>
   <div class="flex flex-col">
     <div v-for="(item, index) of Object.keys(materials)" :key="index" class="flex-1">
-      <draggable
-        tag="div" :list="materials[item]" ghost-class="ghost" :group="{ name: 'material', pull: 'clone' }
-        " class="grid-template grid gap-1 p-3" item-key="id" filter=".undraggable" :sort="false" :clone="handleClone"
-      >
+      <draggable tag="div" :list="materials[item]" ghost-class="ghost" :group="{ name: 'material', pull: 'clone' }
+      " class="grid-template grid gap-1 p-3" item-key="id" filter=".undraggable" :sort="false" :clone="handleClone">
         <template #item="{ element }">
-          <div
-            hover-border="dashed blue"
+          <div hover-border="dashed blue"
             class="h-30px flex cursor-pointer items-center justify-center border-1px bg-#f4f6fc text-12px"
-            :title="element.name" @click="() => handleClick(element)"
-          >
+            :title="element.name">
             <div class="w-70px overflow-hidden text-ellipsis whitespace-nowrap px-5px">
               {{ element.name }}
             </div>

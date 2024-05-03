@@ -16,8 +16,7 @@ const formStore = useFormConfigStore()
 const formItemModels = computed({
   get() {
     const res = formStore.itemsConifg[formStore.currentIndex]?.componentProps ?? {}
-    console.error('get formItemModels', res)
-    return reactive(res)
+    return res
   },
   set(v) {
     formStore.setCurrentProps(v)

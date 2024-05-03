@@ -390,12 +390,28 @@ export const componentConfigMap: ConfigForm = reactive({
     ],
   },
   row: {
-    model: {},
-    schema: [],
+    model: {
+      gutter: 12,
+    },
+    schema: [
+      {
+        label: 'gutter',
+        key: 'gutter',
+        component: 'counter',
+      },
+    ],
   },
   col: {
-    model: {},
-    schema: [],
+    model: {
+      span: 12,
+    },
+    schema: [
+      {
+        label: 'span',
+        key: 'span',
+        component: 'counter',
+      },
+    ],
   },
 })
 // 整体表单相关配置
@@ -415,6 +431,18 @@ export const formConfigMap: PropsConfig = {
         laytout: 'inline',
         options: ['left', 'right', 'top'].map(value => ({ label: value, value })),
       },
+      // slots:{
+      //   default:['left','right','top'].map(value => ({
+      //     component:'radio-option',
+      //     componentProps:{
+      //       key:value,
+      //       value,
+      //     },
+      //     slots:{
+      //       default: value
+      //     }
+      //   }))
+      // }
     },
     { label: 'labelWidth', key: 'labelWidth', component: 'counter' },
     {

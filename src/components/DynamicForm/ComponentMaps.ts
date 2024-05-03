@@ -1,24 +1,29 @@
 import {
   ElCascader,
+  ElCol,
   ElColorPicker,
   ElDatePicker,
   ElInput,
   ElInputNumber,
   ElOption,
   ElRadio,
+  ElRadioGroup,
   ElRate,
+  ElRow,
   ElSlider,
   ElSwitch,
   ElTimePicker,
 } from 'element-plus'
 import { cloneDeep } from 'lodash'
-import CustomRadio from './CustomRadio.vue'
-import CustomSelect from './CustomSelect.vue'
-import CustomCheckbox from './CustomCheckbox.vue'
-import CustomText from './CustomText.vue'
-import CustomJson from './CustomJson.vue'
-import CustomEditor from './CustomEditor.vue'
-import CustomUploader from './CustomUploader.vue'
+import {
+  CustomCheckbox,
+  CustomEditor,
+  CustomJson,
+  CustomRadio,
+  CustomSelect,
+  CustomText,
+  CustomUploader,
+} from './materials'
 
 const ElTextarea: any = cloneDeep(ElInput)
 ElTextarea.props.type.default = 'textarea'
@@ -40,9 +45,11 @@ export const ComponentMaps = {
   'uploader': CustomUploader,
   'editor': CustomEditor,
   'cascader': ElCascader,
-  'grid': 'Grid',
+  'row': ElRow,
+  'col': ElCol,
   'json': CustomJson,
   // 二次封装组件后就无须以下的option组件
+  'el-radio': ElRadioGroup,
   'radio-option': ElRadio,
   'select-option': ElOption,
 }

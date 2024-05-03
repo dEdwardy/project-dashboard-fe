@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ElOption, ElSelect } from 'element-plus'
-import { ref, withDefaults } from 'vue'
-import type { SelectProps } from './types'
+import { ref, watch, withDefaults } from 'vue'
+import type { SelectProps } from '../types'
 
 defineOptions({
   name: 'CustomSelect',
@@ -9,9 +9,12 @@ defineOptions({
 const props = withDefaults(defineProps<SelectProps>(), {
   multiple: false,
   clearable: true,
+  filterable:undefined,
+  filterMethod:undefined,
 })
 const emit = defineEmits(['update:modelValue'])
 
+// @ts-ignore
 const modelValue = ref(props.modelValue)
 watch(modelValue, (v) => {
   emit('update:modelValue', v)
